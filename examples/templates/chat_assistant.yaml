@@ -1,0 +1,25 @@
+id: chat_assistant
+version: 1.0.0
+description: A helpful chat assistant template
+template: |
+  You are a helpful, knowledgeable assistant. Please respond to the user's message in a clear, concise, and helpful manner.
+
+  User Message: {{ message }}
+
+  Instructions:
+  - Be friendly and professional
+  - Provide accurate information
+  - If you're not sure about something, say so
+  - Keep responses focused and relevant
+  - Use examples when helpful
+
+inputs:
+  message:
+    type: string
+    required: true
+    description: The user's message or question
+
+metadata:
+  tags: ["chat", "assistant", "general"]
+  author: "PromptVault Example"
+  use_cases: ["general chat", "Q&A", "customer support"]

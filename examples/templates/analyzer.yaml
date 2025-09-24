@@ -1,0 +1,44 @@
+id: analyzer
+version: 1.0.0
+description: Analyze content with different analysis types
+template: |
+  Please provide a {{ analysis_type }} analysis of the following content:
+
+  {{ content }}
+
+  Analysis Instructions:
+  {% if analysis_type == "sentiment" %}
+  - Determine the overall sentiment (positive, negative, neutral)
+  - Identify key emotional indicators
+  - Provide confidence score
+  {% elif analysis_type == "technical" %}
+  - Identify technical concepts and terminology
+  - Assess complexity level
+  - Highlight key technical points
+  {% elif analysis_type == "business" %}
+  - Extract business implications
+  - Identify opportunities and risks
+  - Provide actionable insights
+  {% else %}
+  - Provide a comprehensive analysis
+  - Include key themes and patterns
+  - Offer relevant insights and observations
+  {% endif %}
+
+  Please structure your response clearly and provide specific examples from the content.
+
+inputs:
+  content:
+    type: string
+    required: true
+    description: The content to analyze
+  analysis_type:
+    type: string
+    required: false
+    default: "general"
+    description: Type of analysis (sentiment, technical, business, general)
+
+metadata:
+  tags: ["analysis", "ai", "content"]
+  author: "PromptVault Example"
+  use_cases: ["content analysis", "document review", "sentiment analysis"]
