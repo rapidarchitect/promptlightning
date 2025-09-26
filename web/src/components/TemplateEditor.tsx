@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import Editor from '@monaco-editor/react';
-import { Play, AlertCircle, CheckCircle, FileText, Loader2, Info, Code2, Edit3, Save, X } from 'lucide-react';
+import { Play, AlertCircle, CheckCircle, FileText, Loader2, Info, Code2, Edit3, Save, X, Plus, Trash2 } from 'lucide-react';
 import { useTemplate, useRender, useUpdateTemplate } from '../hooks/useApi';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -8,6 +8,10 @@ import { Textarea } from '@/components/ui/textarea';
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Label } from '@/components/ui/label';
+import type { InputSpec } from '../types';
 
 interface TemplateEditorProps {
   templateId: string | null;
@@ -28,12 +32,21 @@ export function TemplateEditor({ templateId }: TemplateEditorProps) {
   const [originalContent, setOriginalContent] = useState('');
   const [isDirty, setIsDirty] = useState(false);
 
+  // Input parameters editing states
+  const [editedInputs, setEditedInputs] = useState<Record<string, InputSpec>>({});
+  const [showAddInputDialog, setShowAddInputDialog] = useState(false);
+  const [newInputName, setNewInputName] = useState('');
+  const [newInputType, setNewInputType] = useState<InputSpec['type']>('string');
+  const [newInputRequired, setNewInputRequired] = useState(true);
+  const [newInputDefault, setNewInputDefault] = useState<string>('');
+
   useEffect(() => {
     if (template) {
       setTemplateContent(template.template);
       setOriginalContent(template.template);
       setIsEditMode(false);
       setIsDirty(false);
+      setEditedInputs(template.inputs);
       // Initialize inputs with defaults
       const defaultInputs: Record<string, unknown> = {};
       Object.entries(template.inputs).forEach(([key, spec]) => {
@@ -81,8 +94,8 @@ export function TemplateEditor({ templateId }: TemplateEditorProps) {
   const handleContentChange = useCallback((value: string | undefined) => {
     const newContent = value || '';
     setTemplateContent(newContent);
-    setIsDirty(newContent !== originalContent);
-  }, [originalContent]);
+    setIsDirty(newContent !== originalContent || JSON.stringify(editedInputs) !== JSON.stringify(template?.inputs || {}));
+  }, [originalContent, editedInputs, template]);
 
   const handleSave = useCallback(async () => {
     if (!template || !isDirty) return;
@@ -92,7 +105,7 @@ export function TemplateEditor({ templateId }: TemplateEditorProps) {
         template: templateContent,
         description: template.description,
         version: template.version,
-        inputs: template.inputs,
+        inputs: editedInputs,
         metadata: template.metadata,
       });
 
@@ -107,7 +120,7 @@ export function TemplateEditor({ templateId }: TemplateEditorProps) {
     } catch (error) {
       console.error('Save error:', error);
     }
-  }, [template, templateContent, isDirty, updateTemplate, refetch]);
+  }, [template, templateContent, editedInputs, isDirty, updateTemplate, refetch]);
 
   const handleCancel = useCallback(() => {
     if (isDirty) {
@@ -116,10 +129,11 @@ export function TemplateEditor({ templateId }: TemplateEditorProps) {
     }
 
     setTemplateContent(originalContent);
+    setEditedInputs(template?.inputs || {});
     setIsDirty(false);
     setIsEditMode(false);
     clearUpdateError();
-  }, [isDirty, originalContent, clearUpdateError]);
+  }, [isDirty, originalContent, template, clearUpdateError]);
 
   // Keyboard shortcuts
   useEffect(() => {
@@ -144,6 +158,111 @@ export function TemplateEditor({ templateId }: TemplateEditorProps) {
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [isEditMode, isDirty, handleSave, handleCancel]);
+
+  // Input parameter management functions
+  const handleAddInput = useCallback(() => {
+    if (!newInputName.trim()) return;
+
+    if (editedInputs[newInputName]) {
+      alert('An input with this name already exists.');
+      return;
+    }
+
+    const newSpec: InputSpec = {
+      type: newInputType,
+      required: newInputRequired,
+    };
+
+    // Add default value if provided
+    if (newInputDefault) {
+      try {
+        switch (newInputType) {
+          case 'string':
+            newSpec.default = newInputDefault;
+            break;
+          case 'number':
+            newSpec.default = parseFloat(newInputDefault);
+            break;
+          case 'boolean':
+            newSpec.default = newInputDefault.toLowerCase() === 'true';
+            break;
+          case 'array<string>':
+            newSpec.default = newInputDefault.split('\n').filter(Boolean);
+            break;
+          case 'object':
+            newSpec.default = JSON.parse(newInputDefault);
+            break;
+        }
+      } catch (error) {
+        alert('Invalid default value for the selected type.');
+        return;
+      }
+    }
+
+    setEditedInputs(prev => ({
+      ...prev,
+      [newInputName]: newSpec,
+    }));
+
+    // Check if we need to mark as dirty
+    setIsDirty(
+      templateContent !== originalContent ||
+      JSON.stringify({...editedInputs, [newInputName]: newSpec}) !== JSON.stringify(template?.inputs || {})
+    );
+
+    // Reset dialog form
+    setNewInputName('');
+    setNewInputType('string');
+    setNewInputRequired(true);
+    setNewInputDefault('');
+    setShowAddInputDialog(false);
+  }, [newInputName, newInputType, newInputRequired, newInputDefault, editedInputs, templateContent, originalContent, template]);
+
+  const handleRemoveInput = useCallback((inputName: string) => {
+    const confirmed = window.confirm(`Are you sure you want to remove the input "${inputName}"?`);
+    if (!confirmed) return;
+
+    const newEditedInputs = { ...editedInputs };
+    delete newEditedInputs[inputName];
+    setEditedInputs(newEditedInputs);
+
+    // Remove from current inputs too
+    setInputs(prev => {
+      const newInputs = { ...prev };
+      delete newInputs[inputName];
+      return newInputs;
+    });
+
+    // Check if we need to mark as dirty
+    setIsDirty(
+      templateContent !== originalContent ||
+      JSON.stringify(newEditedInputs) !== JSON.stringify(template?.inputs || {})
+    );
+  }, [editedInputs, templateContent, originalContent, template]);
+
+  const handleInputSpecChange = useCallback((inputName: string, field: keyof InputSpec, value: any) => {
+    setEditedInputs(prev => ({
+      ...prev,
+      [inputName]: {
+        ...prev[inputName],
+        [field]: value,
+      }
+    }));
+
+    // Check if we need to mark as dirty
+    const updatedInputs = {
+      ...editedInputs,
+      [inputName]: {
+        ...editedInputs[inputName],
+        [field]: value,
+      }
+    };
+
+    setIsDirty(
+      templateContent !== originalContent ||
+      JSON.stringify(updatedInputs) !== JSON.stringify(template?.inputs || {})
+    );
+  }, [editedInputs, templateContent, originalContent, template]);
 
   const handleRender = async () => {
     if (!template) return;
@@ -410,23 +529,102 @@ export function TemplateEditor({ templateId }: TemplateEditorProps) {
             <div className="px-4 py-3 border-b border-border bg-muted/30 flex-shrink-0">
               <div className="flex items-center justify-between">
                 <h3 className="text-sm font-medium">Template Inputs</h3>
-                {Object.keys(template.inputs).length > 0 && (
-                  <Badge variant="secondary" className="text-xs">
-                    {Object.keys(template.inputs).length} input{Object.keys(template.inputs).length !== 1 ? 's' : ''}
-                  </Badge>
-                )}
+                <div className="flex items-center gap-2">
+                  {Object.keys(editedInputs).length > 0 && (
+                    <Badge variant="secondary" className="text-xs">
+                      {Object.keys(editedInputs).length} input{Object.keys(editedInputs).length !== 1 ? 's' : ''}
+                    </Badge>
+                  )}
+                  {isEditMode && (
+                    <Dialog open={showAddInputDialog} onOpenChange={setShowAddInputDialog}>
+                      <DialogTrigger asChild>
+                        <Button variant="outline" size="sm">
+                          <Plus className="w-4 h-4" />
+                          <span className="hidden sm:inline ml-1">Add</span>
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent className="sm:max-w-md">
+                        <DialogHeader>
+                          <DialogTitle>Add Input Parameter</DialogTitle>
+                          <DialogDescription>
+                            Add a new input parameter to your template.
+                          </DialogDescription>
+                        </DialogHeader>
+                        <div className="space-y-4">
+                          <div>
+                            <Label htmlFor="input-name">Name</Label>
+                            <Input
+                              id="input-name"
+                              value={newInputName}
+                              onChange={(e) => setNewInputName(e.target.value)}
+                              placeholder="input_name"
+                            />
+                          </div>
+                          <div>
+                            <Label htmlFor="input-type">Type</Label>
+                            <Select value={newInputType} onValueChange={(value) => setNewInputType(value as InputSpec['type'])}>
+                              <SelectTrigger>
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="string">String</SelectItem>
+                                <SelectItem value="number">Number</SelectItem>
+                                <SelectItem value="boolean">Boolean</SelectItem>
+                                <SelectItem value="array<string>">Array of Strings</SelectItem>
+                                <SelectItem value="object">Object</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <input
+                              type="checkbox"
+                              id="input-required"
+                              checked={newInputRequired}
+                              onChange={(e) => setNewInputRequired(e.target.checked)}
+                            />
+                            <Label htmlFor="input-required">Required</Label>
+                          </div>
+                          <div>
+                            <Label htmlFor="input-default">Default Value (optional)</Label>
+                            <Textarea
+                              id="input-default"
+                              value={newInputDefault}
+                              onChange={(e) => setNewInputDefault(e.target.value)}
+                              placeholder={
+                                newInputType === 'object' ? '{"key": "value"}' :
+                                newInputType === 'array<string>' ? 'item1\nitem2' :
+                                newInputType === 'boolean' ? 'true' :
+                                'default value'
+                              }
+                              rows={2}
+                            />
+                          </div>
+                        </div>
+                        <DialogFooter>
+                          <Button variant="outline" onClick={() => setShowAddInputDialog(false)}>
+                            Cancel
+                          </Button>
+                          <Button onClick={handleAddInput}>Add Input</Button>
+                        </DialogFooter>
+                      </DialogContent>
+                    </Dialog>
+                  )}
+                </div>
               </div>
             </div>
             <ScrollArea className="flex-1 min-h-0">
               <div className="p-4">
-                {Object.keys(template.inputs).length === 0 ? (
+                {Object.keys(editedInputs).length === 0 ? (
                   <div className="text-center py-8">
                     <Info className="w-8 h-8 mx-auto mb-3 text-muted-foreground/50" />
                     <p className="text-sm text-muted-foreground">No inputs defined for this template</p>
+                    {isEditMode && (
+                      <p className="text-xs text-muted-foreground mt-2">Click "Add" to create your first input parameter</p>
+                    )}
                   </div>
                 ) : (
                   <div className="space-y-4">
-                    {Object.entries(template.inputs).map(([key, spec]) => (
+                    {Object.entries(editedInputs).map(([key, spec]) => (
                       <div key={key} className="space-y-2">
                         <div className="flex items-center justify-between">
                           <label className="text-sm font-medium">
@@ -442,13 +640,59 @@ export function TemplateEditor({ templateId }: TemplateEditorProps) {
                                 optional
                               </Badge>
                             )}
+                            {isEditMode && (
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => handleRemoveInput(key)}
+                                className="h-6 w-6 p-0 hover:bg-destructive/10"
+                              >
+                                <Trash2 className="w-3 h-3 text-destructive" />
+                              </Button>
+                            )}
                           </div>
                         </div>
-                        {renderInputField(key, spec)}
-                        {spec.default !== undefined && (
-                          <p className="text-xs text-muted-foreground">
-                            Default: {String(spec.default)}
-                          </p>
+
+                        {isEditMode ? (
+                          <div className="space-y-2 p-3 bg-muted/50 rounded-md border">
+                            <div className="flex items-center gap-2">
+                              <Label className="text-xs">Type:</Label>
+                              <Select
+                                value={spec.type}
+                                onValueChange={(value) => handleInputSpecChange(key, 'type', value as InputSpec['type'])}
+                              >
+                                <SelectTrigger className="h-7 text-xs">
+                                  <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="string">String</SelectItem>
+                                  <SelectItem value="number">Number</SelectItem>
+                                  <SelectItem value="boolean">Boolean</SelectItem>
+                                  <SelectItem value="array<string>">Array of Strings</SelectItem>
+                                  <SelectItem value="object">Object</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <input
+                                type="checkbox"
+                                id={`${key}-required`}
+                                checked={spec.required}
+                                onChange={(e) => handleInputSpecChange(key, 'required', e.target.checked)}
+                                className="text-xs"
+                              />
+                              <Label htmlFor={`${key}-required`} className="text-xs">Required</Label>
+                            </div>
+                          </div>
+                        ) : (
+                          <>
+                            {renderInputField(key, spec)}
+                            {spec.default !== undefined && (
+                              <p className="text-xs text-muted-foreground">
+                                Default: {String(spec.default)}
+                              </p>
+                            )}
+                          </>
                         )}
                       </div>
                     ))}
