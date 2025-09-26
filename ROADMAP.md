@@ -147,6 +147,7 @@ promptvault serve --dev
 ```
 
 #### 3. Web UI Components
+{% raw %}
 ```tsx
 // web/src/components/TemplateEditor.tsx
 import { SplitPane } from 'react-split-pane'
@@ -212,6 +213,7 @@ export function TemplateList() {
   )
 }
 ```
+{% endraw %}
 
 #### 4. Real-time Synchronization
 ```python
