@@ -1,6 +1,9 @@
 # PromptVault
 
+[![CI](https://github.com/bogdanpi/promptvault/workflows/CI/badge.svg)](https://github.com/bogdanpi/promptvault/actions)
+[![codecov](https://codecov.io/gh/bogdanpi/promptvault/branch/main/graph/badge.svg)](https://codecov.io/gh/bogdanpi/promptvault)
 [![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
+[![PyPI version](https://badge.fury.io/py/promptvault.svg)](https://badge.fury.io/py/promptvault)
 [![License: Apache-2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
 A Python library for managing and rendering prompt templates with type-safe inputs, versioning, and an interactive web playground.
