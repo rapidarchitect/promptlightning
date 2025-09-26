@@ -34,6 +34,14 @@ class CreateTemplateRequest(BaseModel):
     metadata: Dict[str, Any] = Field(default_factory=dict)
 
 
+class UpdateTemplateRequest(BaseModel):
+    version: Optional[str] = None
+    description: Optional[str] = None
+    template: Optional[str] = None
+    inputs: Optional[Dict[str, Dict[str, Any]]] = None
+    metadata: Optional[Dict[str, Any]] = None
+
+
 class TemplateResponse(BaseModel):
     id: str
     version: str
@@ -169,6 +177,99 @@ class PlaygroundServer:
                         "default": input_spec.default
                     } for name, input_spec in spec.inputs.items()},
                     metadata=spec.metadata
+                )
+
+            except HTTPException:
+                raise  # Re-raise HTTP exceptions as-is
+            except ValidationError as e:
+                raise HTTPException(status_code=400, detail=f"Validation error: {str(e)}")
+            except Exception as e:
+                raise HTTPException(status_code=500, detail=str(e))
+
+        @app.put("/api/templates/{template_id}", response_model=TemplateResponse)
+        async def update_template(template_id: str, request: UpdateTemplateRequest):
+            """Update an existing template and save it to the filesystem."""
+            try:
+                # Check if template exists
+                try:
+                    current_template = self.vault.get(template_id)
+                    current_spec = current_template.spec
+                except TemplateNotFound:
+                    raise HTTPException(status_code=404, detail=f"Template '{template_id}' not found")
+
+                # Merge update request with current template data
+                updated_version = request.version if request.version is not None else current_spec.version
+                updated_description = request.description if request.description is not None else current_spec.description
+                updated_template = request.template if request.template is not None else current_spec.template
+
+                # Handle inputs merge
+                updated_inputs_dict = {}
+                if request.inputs is not None:
+                    # Convert new input specs from dict format to InputSpec objects
+                    for input_name, input_data in request.inputs.items():
+                        updated_inputs_dict[input_name] = InputSpec(
+                            type=input_data.get("type", "string"),
+                            required=input_data.get("required", True),
+                            default=input_data.get("default")
+                        )
+                else:
+                    # Keep existing inputs
+                    updated_inputs_dict = current_spec.inputs
+
+                # Handle metadata merge
+                updated_metadata = request.metadata if request.metadata is not None else current_spec.metadata
+
+                # Create updated TemplateSpec object and validate it
+                updated_spec = TemplateSpec(
+                    id=current_spec.id,  # ID cannot be changed
+                    version=updated_version,
+                    description=updated_description,
+                    template=updated_template,
+                    inputs=updated_inputs_dict,
+                    metadata=updated_metadata
+                )
+
+                # Save updated template to YAML file
+                prompt_dir = Path(self.vault.config["prompt_dir"])
+                filename = f"{updated_spec.id}.yaml"
+                file_path = prompt_dir / filename
+
+                # Create the YAML content
+                yaml_content = {
+                    "id": updated_spec.id,
+                    "version": updated_spec.version,
+                    "description": updated_spec.description,
+                    "template": updated_spec.template,
+                    "inputs": {
+                        name: {
+                            "type": input_spec.type,
+                            "required": input_spec.required,
+                            "default": input_spec.default
+                        }
+                        for name, input_spec in updated_spec.inputs.items()
+                    },
+                    "metadata": updated_spec.metadata
+                }
+
+                # Write to file
+                with open(file_path, 'w', encoding='utf-8') as f:
+                    yaml.dump(yaml_content, f, default_flow_style=False, sort_keys=False)
+
+                # Invalidate cache to pick up the updated template
+                self.vault.invalidate_cache()
+
+                # Return the updated template
+                return TemplateResponse(
+                    id=updated_spec.id,
+                    version=updated_spec.version,
+                    description=updated_spec.description,
+                    template=updated_spec.template,
+                    inputs={name: {
+                        "type": input_spec.type,
+                        "required": input_spec.required,
+                        "default": input_spec.default
+                    } for name, input_spec in updated_spec.inputs.items()},
+                    metadata=updated_spec.metadata
                 )
 
             except HTTPException:

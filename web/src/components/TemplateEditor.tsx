@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Editor from '@monaco-editor/react';
-import { Play, AlertCircle, CheckCircle, FileText, Loader2, Info, Code2 } from 'lucide-react';
-import { useTemplate, useRender } from '../hooks/useApi';
+import { Play, AlertCircle, CheckCircle, FileText, Loader2, Info, Code2, Edit3, Save, X } from 'lucide-react';
+import { useTemplate, useRender, useUpdateTemplate } from '../hooks/useApi';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -14,17 +14,26 @@ interface TemplateEditorProps {
 }
 
 export function TemplateEditor({ templateId }: TemplateEditorProps) {
-  const { template, loading, error } = useTemplate(templateId);
+  const { template, loading, error, refetch } = useTemplate(templateId);
   const { render, loading: renderLoading, error: renderError, clearError } = useRender();
+  const { updateTemplate, loading: updateLoading, error: updateError, clearError: clearUpdateError } = useUpdateTemplate();
 
   const [templateContent, setTemplateContent] = useState('');
   const [inputs, setInputs] = useState<Record<string, unknown>>({});
   const [renderResult, setRenderResult] = useState<string>('');
   const [showPreview, setShowPreview] = useState(false);
 
+  // Edit mode states
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [originalContent, setOriginalContent] = useState('');
+  const [isDirty, setIsDirty] = useState(false);
+
   useEffect(() => {
     if (template) {
       setTemplateContent(template.template);
+      setOriginalContent(template.template);
+      setIsEditMode(false);
+      setIsDirty(false);
       // Initialize inputs with defaults
       const defaultInputs: Record<string, unknown> = {};
       Object.entries(template.inputs).forEach(([key, spec]) => {
@@ -60,6 +69,81 @@ export function TemplateEditor({ templateId }: TemplateEditorProps) {
   useEffect(() => {
     clearError();
   }, [templateContent, inputs, clearError]);
+
+  // Edit mode handlers
+  const handleEnterEditMode = useCallback(() => {
+    setIsEditMode(true);
+    setOriginalContent(templateContent);
+    setIsDirty(false);
+    clearUpdateError();
+  }, [templateContent, clearUpdateError]);
+
+  const handleContentChange = useCallback((value: string | undefined) => {
+    const newContent = value || '';
+    setTemplateContent(newContent);
+    setIsDirty(newContent !== originalContent);
+  }, [originalContent]);
+
+  const handleSave = useCallback(async () => {
+    if (!template || !isDirty) return;
+
+    try {
+      await updateTemplate(template.id, {
+        template: templateContent,
+        description: template.description,
+        version: template.version,
+        inputs: template.inputs,
+        metadata: template.metadata,
+      });
+
+      setOriginalContent(templateContent);
+      setIsDirty(false);
+      setIsEditMode(false);
+
+      // Refresh the template to get the latest version
+      if (refetch) {
+        await refetch();
+      }
+    } catch (error) {
+      console.error('Save error:', error);
+    }
+  }, [template, templateContent, isDirty, updateTemplate, refetch]);
+
+  const handleCancel = useCallback(() => {
+    if (isDirty) {
+      const confirmed = window.confirm('You have unsaved changes. Are you sure you want to cancel?');
+      if (!confirmed) return;
+    }
+
+    setTemplateContent(originalContent);
+    setIsDirty(false);
+    setIsEditMode(false);
+    clearUpdateError();
+  }, [isDirty, originalContent, clearUpdateError]);
+
+  // Keyboard shortcuts
+  useEffect(() => {
+    if (!isEditMode) return;
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.ctrlKey || event.metaKey) {
+        if (event.key === 's') {
+          event.preventDefault();
+          if (isDirty) {
+            handleSave();
+          }
+        }
+      }
+
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        handleCancel();
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [isEditMode, isDirty, handleSave, handleCancel]);
 
   const handleRender = async () => {
     if (!template) return;
@@ -209,35 +293,81 @@ export function TemplateEditor({ templateId }: TemplateEditorProps) {
   return (
     <div className="flex-1 flex flex-col h-full bg-background">
       {/* Header */}
-      <div className="border-b border-border px-6 py-4 bg-card">
+      <div className="border-b border-border px-4 md:px-6 py-4 bg-card">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-2 mb-2">
-              <h1 className="text-xl font-semibold truncate">{template.id}</h1>
+              <h1 className="text-lg md:text-xl font-semibold truncate">{template.id}</h1>
               <Badge variant="secondary">{template.version}</Badge>
+              {isEditMode && (
+                <Badge variant="default" className="bg-blue-600">
+                  {isDirty ? 'Editing (unsaved)' : 'Editing'}
+                </Badge>
+              )}
             </div>
             {template.description && (
               <p className="text-sm text-muted-foreground">{template.description}</p>
             )}
           </div>
-          <Button
-            onClick={handleRender}
-            disabled={renderLoading}
-            className="shrink-0"
-          >
-            {renderLoading ? (
+          <div className="flex items-center gap-2 shrink-0">
+            {isEditMode ? (
               <>
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                Rendering...
+                <Button
+                  onClick={handleCancel}
+                  variant="outline"
+                  size="sm"
+                  disabled={updateLoading}
+                >
+                  <X className="w-4 h-4 mr-2" />
+                  <span className="hidden sm:inline">Cancel</span>
+                </Button>
+                <Button
+                  onClick={handleSave}
+                  disabled={!isDirty || updateLoading}
+                  size="sm"
+                  className="bg-green-600 hover:bg-green-700"
+                >
+                  {updateLoading ? (
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  ) : (
+                    <Save className="w-4 h-4 mr-2" />
+                  )}
+                  {updateLoading ? 'Saving...' : 'Save'}
+                </Button>
               </>
             ) : (
-              <>
-                <Play className="w-4 h-4 mr-2" />
-                Render
-              </>
+              <Button
+                onClick={handleEnterEditMode}
+                variant="outline"
+                size="sm"
+              >
+                <Edit3 className="w-4 h-4 mr-2" />
+                <span className="hidden sm:inline">Edit</span>
+              </Button>
             )}
-          </Button>
+            <Button
+              onClick={handleRender}
+              disabled={renderLoading}
+            >
+              {renderLoading ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  <span className="hidden sm:inline">Rendering...</span>
+                </>
+              ) : (
+                <>
+                  <Play className="w-4 h-4 mr-2" />
+                  <span className="hidden sm:inline">Render</span>
+                </>
+              )}
+            </Button>
+          </div>
         </div>
+        {updateError && (
+          <div className="mt-3 p-3 bg-destructive/10 border border-destructive/20 rounded-md">
+            <p className="text-sm text-destructive">{updateError}</p>
+          </div>
+        )}
       </div>
 
       <div className="flex-1 flex flex-col lg:flex-row overflow-hidden">
@@ -249,7 +379,11 @@ export function TemplateEditor({ templateId }: TemplateEditorProps) {
               <div className="flex items-center gap-2">
                 <Code2 className="w-4 h-4" />
                 <h3 className="text-sm font-medium">Template</h3>
-                <Badge variant="outline" className="text-xs">Read-only</Badge>
+                {isEditMode ? (
+                  <Badge variant="outline" className="text-xs">Editing</Badge>
+                ) : (
+                  <Badge variant="outline" className="text-xs">Read-only</Badge>
+                )}
               </div>
             </div>
             <div className="h-64 lg:h-80">
@@ -257,14 +391,14 @@ export function TemplateEditor({ templateId }: TemplateEditorProps) {
                 height="100%"
                 language="handlebars"
                 value={templateContent}
-                onChange={(value) => setTemplateContent(value || '')}
+                onChange={handleContentChange}
                 options={{
                   minimap: { enabled: false },
                   scrollBeyondLastLine: false,
                   wordWrap: 'on',
                   lineNumbers: 'on',
                   fontSize: 14,
-                  readOnly: true,
+                  readOnly: !isEditMode,
                   theme: 'vs',
                 }}
               />

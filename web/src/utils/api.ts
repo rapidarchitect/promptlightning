@@ -46,6 +46,19 @@ export const api = {
     return handleResponse<Template>(response);
   },
 
+  async updateTemplate(id: string, template: Partial<Omit<Template, 'id' | 'inputs'>> & {
+    inputs?: Record<string, { type: string; required: boolean; default?: unknown }>
+  }): Promise<Template> {
+    const response = await fetch(`${API_BASE}/templates/${encodeURIComponent(id)}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(template),
+    });
+    return handleResponse<Template>(response);
+  },
+
   async renderTemplate(id: string, request: RenderRequest): Promise<RenderResponse> {
     const response = await fetch(`${API_BASE}/templates/${encodeURIComponent(id)}/render`, {
       method: 'POST',

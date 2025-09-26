@@ -136,3 +136,31 @@ export function useCreateTemplate() {
 
   return { createTemplate, loading, error, clearError: () => setError(null) };
 }
+
+export function useUpdateTemplate() {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const updateTemplate = useCallback(async (id: string, template: Partial<Omit<Template, 'id' | 'inputs'>> & {
+    inputs?: Record<string, { type: string; required: boolean; default?: unknown }>
+  }) => {
+    try {
+      setLoading(true);
+      setError(null);
+      const response = await api.updateTemplate(id, template);
+      return response;
+    } catch (err) {
+      const errorMessage = err instanceof ApiError
+        ? err.message
+        : err instanceof Error
+        ? err.message
+        : 'Failed to update template';
+      setError(errorMessage);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  return { updateTemplate, loading, error, clearError: () => setError(null) };
+}
