@@ -23,7 +23,7 @@ A Python library for managing and rendering prompt templates with type-safe inpu
 ## Installation
 
 ```bash
-pip install promptvault
+pip install vaultstudio
 ```
 
 Or for development:
