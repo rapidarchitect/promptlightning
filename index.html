@@ -119,24 +119,245 @@
             color: #667eea;
         }
 
-        .hero {
-            padding: 8rem 0 4rem;
-            text-align: center;
-            color: white;
+        .mobile-menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: #333;
+            cursor: pointer;
         }
 
-        .hero h1 {
-            font-size: 3.5rem;
-            font-weight: 800;
-            margin-bottom: 1rem;
+        .mobile-nav {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(10px);
+            z-index: 2000;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 2rem;
+        }
+
+        .mobile-nav.active {
+            display: flex;
+        }
+
+        .mobile-nav a {
+            text-decoration: none;
+            color: #333;
+            font-size: 1.5rem;
+            font-weight: 600;
+            transition: color 0.3s ease;
+        }
+
+        .mobile-nav a:hover {
+            color: #667eea;
+        }
+
+        .mobile-nav .close-btn {
+            position: absolute;
+            top: 2rem;
+            right: 2rem;
+            background: none;
+            border: none;
+            font-size: 2rem;
+            color: #333;
+            cursor: pointer;
+        }
+
+        .hero {
+            padding: 8rem 0 6rem;
+            text-align: center;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="0.5"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>') repeat;
+            opacity: 0.3;
+            animation: float 20s ease-in-out infinite;
+        }
+
+        .hero-badge {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 50px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 2rem;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
             animation: fadeInUp 1s ease;
         }
 
-        .hero p {
-            font-size: 1.3rem;
-            margin-bottom: 2rem;
-            opacity: 0.9;
+        .hero-badge i {
+            margin-right: 0.5rem;
+            color: #4ade80;
+        }
+
+        .hero h1 {
+            font-size: 4rem;
+            font-weight: 900;
+            margin-bottom: 1rem;
+            animation: fadeInUp 1s ease 0.1s both;
+            background: linear-gradient(135deg, #ffffff 0%, #f0f9ff 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero-subtitle {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            opacity: 0.95;
+            font-weight: 600;
             animation: fadeInUp 1s ease 0.2s both;
+        }
+
+        .hero-description {
+            font-size: 1.1rem;
+            margin-bottom: 2rem;
+            opacity: 0.85;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            animation: fadeInUp 1s ease 0.3s both;
+        }
+
+        .hero-stats {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-top: 3rem;
+            flex-wrap: wrap;
+            animation: fadeInUp 1s ease 0.6s both;
+        }
+
+        .stat-item {
+            text-align: center;
+            min-width: 140px;
+        }
+
+        .stat-item strong {
+            display: block;
+            font-size: 1.1rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .stat-item span {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.8; }
+        }
+
+        .hero-badge {
+            animation: fadeInUp 1s ease, pulse 3s ease-in-out infinite 2s;
+        }
+
+        /* Enhanced code examples */
+        .code-example {
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            border: 1px solid #4a5568;
+        }
+
+        .code-example:hover {
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.25);
+            transform: translateY(-2px);
+        }
+
+        .cta-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-align: center;
+        }
+
+        .final-cta h2 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            color: white;
+        }
+
+        .final-cta > p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            margin-bottom: 3rem;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .cta-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .cta-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 16px;
+            padding: 2rem;
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+
+        .cta-card:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .cta-card i {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            color: #4ade80;
+        }
+
+        .cta-card h3 {
+            font-size: 1.4rem;
+            margin-bottom: 1rem;
+            color: white;
+        }
+
+        .cta-card p {
+            margin-bottom: 1.5rem;
+            opacity: 0.9;
+        }
+
+        .cta-card .btn {
+            background: white;
+            color: #667eea;
+            border: none;
+        }
+
+        .cta-card .btn:hover {
+            background: #f8f9fa;
+            transform: translateY(-2px);
         }
 
         .cta-buttons {
@@ -144,7 +365,8 @@
             gap: 1rem;
             justify-content: center;
             flex-wrap: wrap;
-            animation: fadeInUp 1s ease 0.4s both;
+            animation: fadeInUp 1s ease 0.5s both;
+            margin: 2rem 0;
         }
 
         .btn {
@@ -169,6 +391,10 @@
         .btn-primary:hover {
             transform: translateY(-2px);
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn:active {
+            transform: translateY(0);
         }
 
         .btn-secondary {
@@ -215,7 +441,23 @@
 
         .feature:hover {
             transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
         }
+
+        .feature {
+            animation: fadeInUp 0.6s ease forwards;
+            opacity: 0;
+            transform: translateY(30px);
+        }
+
+        .feature:nth-child(1) { animation-delay: 0.1s; }
+        .feature:nth-child(2) { animation-delay: 0.2s; }
+        .feature:nth-child(3) { animation-delay: 0.3s; }
+        .feature:nth-child(4) { animation-delay: 0.4s; }
+        .feature:nth-child(5) { animation-delay: 0.5s; }
+        .feature:nth-child(6) { animation-delay: 0.6s; }
+        .feature:nth-child(7) { animation-delay: 0.7s; }
+        .feature:nth-child(8) { animation-delay: 0.8s; }
 
         .feature i {
             font-size: 3rem;
@@ -255,12 +497,141 @@
         .install-command {
             background: #1a202c;
             color: #4ade80;
-            padding: 1rem;
-            border-radius: 8px;
+            padding: 1.25rem;
+            border-radius: 12px;
             font-family: 'Monaco', monospace;
             text-align: center;
             font-size: 1.1rem;
             margin: 2rem 0;
+            border: 1px solid rgba(74, 222, 128, 0.2);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            animation: fadeInUp 1s ease 0.4s both;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .install-command::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(74, 222, 128, 0.1), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .install-command:hover::before {
+            left: 100%;
+        }
+
+        .install-command i {
+            margin-right: 0.75rem;
+            font-size: 1.2rem;
+        }
+
+        .playground-section {
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+        }
+
+        .playground-demo {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            align-items: center;
+            margin: 3rem 0;
+        }
+
+        .playground-screenshot {
+            width: 100%;
+            border-radius: 12px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .playground-screenshot:hover {
+            transform: translateY(-10px) scale(1.02);
+        }
+
+        .playground-features {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+        }
+
+        .playground-feature {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+            padding: 1rem;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .playground-feature i {
+            font-size: 1.5rem;
+            color: #667eea;
+            margin-top: 0.25rem;
+            min-width: 24px;
+        }
+
+        .playground-feature h4 {
+            margin: 0 0 0.5rem 0;
+            color: #333;
+            font-size: 1.1rem;
+        }
+
+        .playground-feature p {
+            margin: 0;
+            color: #666;
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+
+        .playground-cta {
+            text-align: center;
+            background: white;
+            padding: 3rem 2rem;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            margin-top: 4rem;
+        }
+
+        .playground-cta h3 {
+            color: #333;
+            font-size: 1.8rem;
+            margin-bottom: 1rem;
+        }
+
+        .playground-cta code {
+            background: #f1f5f9;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-family: 'Monaco', monospace;
+        }
+
+        .playground-command {
+            background: #1a202c;
+            color: #4ade80;
+            padding: 1rem;
+            border-radius: 8px;
+            font-family: 'Monaco', monospace;
+            text-align: center;
+            font-size: 1rem;
+            border: 1px solid rgba(74, 222, 128, 0.2);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .playground-command pre {
+            margin: 0;
+        }
+
+        .playground-command code {
+            background: none;
+            color: inherit;
+            padding: 0;
+            font-size: inherit;
         }
 
         .section.github-section {
@@ -325,16 +696,33 @@
         }
 
         @media (max-width: 768px) {
+            .hero {
+                padding: 6rem 0 4rem;
+            }
+
             .hero h1 {
                 font-size: 2.5rem;
             }
 
-            .hero p {
-                font-size: 1.1rem;
+            .hero-subtitle {
+                font-size: 1.2rem;
+            }
+
+            .hero-description {
+                font-size: 1rem;
+            }
+
+            .hero-stats {
+                flex-direction: column;
+                gap: 1rem;
             }
 
             .nav-links {
                 display: none;
+            }
+
+            .mobile-menu-toggle {
+                display: block;
             }
 
             .features {
@@ -344,6 +732,43 @@
             .github-stats {
                 flex-direction: column;
                 align-items: center;
+            }
+
+            .cta-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .btn {
+                width: 100%;
+                max-width: 300px;
+                justify-content: center;
+            }
+
+            .playground-demo {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+                text-align: center;
+            }
+
+            .playground-screenshot {
+                order: -1;
+            }
+
+            .playground-cta {
+                padding: 2rem 1rem;
+            }
+
+            .final-cta h2 {
+                font-size: 2rem;
+            }
+
+            .final-cta > p {
+                font-size: 1.1rem;
+            }
+
+            .cta-grid {
+                grid-template-columns: 1fr;
             }
         }
     </style>
@@ -355,34 +780,113 @@
                 <i class="fas fa-vault"></i> PromptVault
             </a>
             <ul class="nav-links">
+                <li><a href="#playground">Playground</a></li>
                 <li><a href="#features">Features</a></li>
                 <li><a href="#quickstart">Quick Start</a></li>
                 <li><a href="#examples">Examples</a></li>
                 <li><a href="#contribute">Contribute</a></li>
             </ul>
+            <button class="mobile-menu-toggle" onclick="toggleMobileMenu()">
+                <i class="fas fa-bars"></i>
+            </button>
         </nav>
     </header>
 
+    <div class="mobile-nav" id="mobileNav">
+        <button class="close-btn" onclick="toggleMobileMenu()">
+            <i class="fas fa-times"></i>
+        </button>
+        <a href="#playground" onclick="toggleMobileMenu()">Playground</a>
+        <a href="#features" onclick="toggleMobileMenu()">Features</a>
+        <a href="#quickstart" onclick="toggleMobileMenu()">Quick Start</a>
+        <a href="#examples" onclick="toggleMobileMenu()">Examples</a>
+        <a href="#contribute" onclick="toggleMobileMenu()">Contribute</a>
+    </div>
+
     <section class="hero">
         <div class="container">
-            <h1>Prompt Management Platform</h1>
-            <p>Manage, version, and hot‑reload prompts with type‑safe inputs and zero‑deploy updates.</p>
+            <div class="hero-badge">
+                <i class="fas fa-rocket"></i> Interactive Web Playground Included
+            </div>
+            <h1>PromptVault</h1>
+            <p class="hero-subtitle">The modern prompt management platform for Python developers</p>
+            <p class="hero-description">Manage, version, and hot‑reload prompts with type‑safe inputs, interactive playground, and zero‑deploy updates.</p>
 
             <div class="install-command">
                 <i class="fas fa-terminal"></i> pip install promptvault
             </div>
 
-            <div class="star-cta">
-                <h3>Like PromptVault?</h3>
-                <p>Help the project grow. One click to star it on GitHub.</p>
-                <div class="star-cta-actions">
-                    <a href="https://github.com/bogdan-pistol/promptvault" class="btn btn-primary btn-lg">
-                        <i class="fab fa-github"></i> ⭐ Star on GitHub
-                    </a>
-                    <a href="#quickstart" class="btn btn-outline-light btn-lg">
-                        <i class="fas fa-bolt"></i> Quickstart
-                    </a>
+            <div class="cta-buttons">
+                <a href="https://github.com/bogdan-pistol/promptvault" class="btn btn-primary">
+                    <i class="fab fa-github"></i> ⭐ Star on GitHub
+                </a>
+                <a href="#playground" class="btn btn-secondary">
+                    <i class="fas fa-play"></i> Try Playground
+                </a>
+                <a href="#quickstart" class="btn btn-secondary">
+                    <i class="fas fa-rocket"></i> Quick Start
+                </a>
+            </div>
+
+            <div class="hero-stats">
+                <div class="stat-item">
+                    <strong>🎯 Interactive</strong>
+                    <span>Web playground like Jupyter</span>
                 </div>
+                <div class="stat-item">
+                    <strong>🛡️ Type-safe</strong>
+                    <span>Validated inputs & outputs</span>
+                </div>
+                <div class="stat-item">
+                    <strong>⚡ Hot-reload</strong>
+                    <span>Live template updates</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="playground" class="section playground-section">
+        <div class="container">
+            <h2>🎯 Interactive Playground</h2>
+            <p style="text-align: center; font-size: 1.2rem; margin-bottom: 3rem; color: #666; max-width: 800px; margin-left: auto; margin-right: auto;">
+                Experience the power of PromptVault with our modern web playground. Edit, test, and preview templates in real-time with a Jupyter-like interface.
+            </p>
+
+            <div class="playground-demo">
+                <img src="docs/assets/playground-interface.png" alt="PromptVault Playground Interface" class="playground-screenshot">
+                <div class="playground-features">
+                    <div class="playground-feature">
+                        <i class="fas fa-edit"></i>
+                        <h4>Live Template Editing</h4>
+                        <p>Real-time syntax highlighting and validation as you type</p>
+                    </div>
+                    <div class="playground-feature">
+                        <i class="fas fa-flask"></i>
+                        <h4>Interactive Testing</h4>
+                        <p>Test templates instantly with custom inputs and see live results</p>
+                    </div>
+                    <div class="playground-feature">
+                        <i class="fas fa-mobile-alt"></i>
+                        <h4>Mobile Responsive</h4>
+                        <p>Works perfectly on desktop, tablet, and mobile devices</p>
+                    </div>
+                    <div class="playground-feature">
+                        <i class="fas fa-palette"></i>
+                        <h4>Modern UI</h4>
+                        <p>Built with shadcn/ui components for a beautiful experience</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="playground-cta">
+                <h3>Ready to try it yourself?</h3>
+                <div class="playground-command" style="margin: 1rem 0;">
+<pre><code>promptvault playground</code></pre>
+                </div>
+                <p style="color: #666; margin-bottom: 1.5rem;">Automatically builds and launches at <code>http://localhost:3000</code></p>
+                <a href="#quickstart" class="btn btn-primary" style="background: #667eea; color: white;">
+                    <i class="fas fa-rocket"></i> Get Started Now
+                </a>
             </div>
         </div>
     </section>
@@ -617,15 +1121,49 @@ promptvault watch</code></pre>
         </div>
     </section>
 
+    <section class="cta-section section">
+        <div class="container">
+            <div class="final-cta">
+                <h2>Ready to Transform Your Prompt Management?</h2>
+                <p>Join developers who've already made the switch to structured, type-safe prompt templates</p>
+
+                <div class="cta-grid">
+                    <div class="cta-card">
+                        <i class="fas fa-download"></i>
+                        <h3>Install Now</h3>
+                        <div class="code-example" data-lang="bash" style="margin: 1rem 0; font-size: 0.9rem;">
+<pre><code>pip install promptvault</code></pre>
+                        </div>
+                        <a href="#quickstart" class="btn btn-primary">Get Started</a>
+                    </div>
+
+                    <div class="cta-card">
+                        <i class="fab fa-github"></i>
+                        <h3>Star & Follow</h3>
+                        <p>Help us reach 1000+ stars and get updates on new features</p>
+                        <a href="https://github.com/bogdan-pistol/promptvault" class="btn btn-primary">⭐ Star on GitHub</a>
+                    </div>
+
+                    <div class="cta-card">
+                        <i class="fas fa-play-circle"></i>
+                        <h3>Try Playground</h3>
+                        <p>Experience the interactive web interface - no installation required</p>
+                        <a href="#playground" class="btn btn-primary">View Demo</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <footer class="footer">
         <div class="container">
             <div class="footer-links">
                 <a href="https://github.com/bogdan-pistol/promptvault">GitHub</a>
                 <a href="https://github.com/bogdan-pistol/promptvault/issues">Issues</a>
                 <a href="https://github.com/bogdan-pistol/promptvault/blob/main/LICENSE">License</a>
-                <a href="https://github.com/bogdan-pistol/explpromptvault/blob/main/CHANGELOG.md">Changelog</a>
+                <a href="https://pypi.org/project/promptvault/">PyPI</a>
             </div>
-            <p>&copy; 2024 PromptVault. Released under the MIT License.</p>
+            <p>&copy; 2024 PromptVault. Released under the Apache-2.0 License.</p>
             <p style="margin-top: 1rem; color: #666;">
                 Built with ❤️ for the Python community
             </p>
@@ -634,5 +1172,53 @@ promptvault watch</code></pre>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+
+    <script>
+        function toggleMobileMenu() {
+            const mobileNav = document.getElementById('mobileNav');
+            mobileNav.classList.toggle('active');
+            document.body.style.overflow = mobileNav.classList.contains('active') ? 'hidden' : 'auto';
+        }
+
+        // Smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Close mobile menu when clicking outside
+        document.addEventListener('click', function(e) {
+            const mobileNav = document.getElementById('mobileNav');
+            const menuToggle = document.querySelector('.mobile-menu-toggle');
+            if (mobileNav.classList.contains('active') &&
+                !mobileNav.contains(e.target) &&
+                !menuToggle.contains(e.target)) {
+                toggleMobileMenu();
+            }
+        });
+
+        // Add scroll effect to header
+        let lastScroll = 0;
+        window.addEventListener('scroll', () => {
+            const currentScroll = window.pageYOffset;
+            const header = document.querySelector('.header');
+
+            if (currentScroll > 100) {
+                header.style.boxShadow = '0 2px 20px rgba(0, 0, 0, 0.15)';
+            } else {
+                header.style.boxShadow = '0 2px 20px rgba(0, 0, 0, 0.1)';
+            }
+
+            lastScroll = currentScroll;
+        });
+    </script>
 </body>
 </html>

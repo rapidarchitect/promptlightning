@@ -5,6 +5,61 @@ build/
 dist/
 wheels/
 *.egg-info
-.idea
+
 # Virtual environments
 .venv
+venv/
+env/
+
+# IDEs and editors
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS-generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Claude Code related files
+.claude/
+
+# PromptVault user-generated files (from init command)
+promptvault.yaml
+promptvault.db
+*.db
+*.sqlite
+*.sqlite3
+
+# User prompt directories (but keep example prompts in repo)
+# Note: The default prompts/ folder contains examples and should be tracked
+# Users can override prompt_dir in promptvault.yaml to use different folders
+
+# Development and testing files
+*.log
+logs/
+temp/
+tmp/
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.env
+.env.local
+.env.*.local
+
+# Build artifacts for playground
+web/dist/
+web/node_modules/
+playground/dist/
+playground/node_modules/
+
+# Development scripts (keep in repo but users might create their own)
+dev_*.py
+build_*.py

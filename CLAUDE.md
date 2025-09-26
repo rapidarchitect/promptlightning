@@ -11,7 +11,8 @@ PromptVault is a Python library for managing and rendering prompt templates with
 - **Registry**: Template discovery system (`promptvault/registry/`) - abstract base with LocalRegistry implementation that scans YAML files in prompt directories
 - **Model**: Pydantic-based template specifications (`promptvault/model.py`) - defines TemplateSpec with input validation and type coercion
 - **Renderer**: Jinja2-based template rendering (`promptvault/renderer.py`) - includes custom filters like `yaml` and `default`
-- **CLI**: Typer-based command interface (`promptvault/cli.py`) - provides init, list, get, bump, and watch commands
+- **CLI**: Typer-based command interface (`promptvault/cli.py`) - provides init, list, get, bump, watch, and playground commands
+- **Playground**: FastAPI-based web server (`promptvault/playground.py`) - interactive web interface for template development and testing
 
 Templates are stored as YAML files with structure: `{id, version, description, template, inputs, metadata}`. The `inputs` field defines typed parameters (string, number, boolean, array<string>, object) with validation and defaults.
 
@@ -44,6 +45,15 @@ export PATH="$HOME/.local/bin:$PATH" && uv run python -m promptvault.cli get sum
 export PATH="$HOME/.local/bin:$PATH" && uv run python -m promptvault.cli watch
 ```
 
+**Testing the Playground:**
+```bash
+# Start interactive playground web interface
+export PATH="$HOME/.local/bin:$PATH" && uv run python -m promptvault.cli playground --port 3000
+
+# Start in development mode with auto-reload
+export PATH="$HOME/.local/bin:$PATH" && uv run python -m promptvault.cli playground --dev
+```
+
 **Library Usage:**
 ```bash
 # Test vault functionality
@@ -53,6 +63,23 @@ v = Vault(prompt_dir='./prompts')
 tmpl = v.get('summarizer')
 print(tmpl.render(input_text='test'))
 "
+```
+
+**Running Tests:**
+```bash
+# Run all tests
+export PATH="$HOME/.local/bin:$PATH" && uv run python -m pytest
+
+# Run specific test categories
+export PATH="$HOME/.local/bin:$PATH" && uv run python tests/test_runner.py unit
+export PATH="$HOME/.local/bin:$PATH" && uv run python tests/test_runner.py integration
+export PATH="$HOME/.local/bin:$PATH" && uv run python tests/test_runner.py performance
+
+# Quick validation test
+python validate_tests.py
+
+# Run tests with coverage
+export PATH="$HOME/.local/bin:$PATH" && uv run python -m pytest --cov=promptvault
 ```
 
 ## Key Architecture Notes
@@ -81,3 +108,4 @@ logging:
 - **No emoticons**: Never use emoticons or emojis in code, commit messages, or any generated content
 - **Minimal comments**: Avoid code comments unless absolutely necessary for complex logic or non-obvious behavior
 - **Assume expertise**: Write code assuming prior software engineering knowledge - avoid explanatory comments for standard patterns
+- memory plan to build the opensource project

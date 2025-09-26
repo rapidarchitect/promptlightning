@@ -3,11 +3,12 @@
 [![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
 [![License: Apache-2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
-A Python library for managing and rendering prompt templates with type-safe inputs, versioning, and optional logging.
+A Python library for managing and rendering prompt templates with type-safe inputs, versioning, and an interactive web playground.
 
 ## Features
 
-- 🎯 **Type-safe prompt templates** with validation and coercion
+- 🎯 **Interactive Web Playground** - Modern React UI for template development (like Jupyter)
+- 🎨 **Type-safe prompt templates** with validation and coercion
 - 📁 **File-based template management** with YAML definitions
 - 🔄 **Hot-reload support** for development
 - 📝 **Jinja2 templating** with custom filters
@@ -87,7 +88,40 @@ print(result)
 # Welcome to PromptVault!
 ```
 
-### 4. CLI Usage
+### 4. Interactive Playground 🎯
+
+Launch the web-based playground (like Jupyter Notebook):
+
+```bash
+promptvault playground
+```
+
+![Playground Demo](docs/assets/playground-demo.gif)
+
+This **automatically**:
+- 🔨 Builds the modern React UI
+- 🚀 Starts the server at `http://localhost:3000`
+- 🌐 Opens your browser to the playground
+
+**Features:**
+- ✨ Modern, responsive interface built with shadcn/ui
+- 📱 Mobile-friendly design that works on all screen sizes
+- 🎨 Real-time template editing and preview
+- 🧪 Test templates with different inputs
+- 📊 Example templates for inspiration
+
+![Playground Interface](docs/assets/playground-interface.png)
+
+**Options:**
+```bash
+promptvault playground --port 8080      # Custom port
+promptvault playground --no-browser     # Don't open browser
+promptvault playground --no-build       # Skip UI build
+```
+
+### 5. CLI Usage
+
+![CLI Workflow](docs/assets/cli-workflow.gif)
 
 ```bash
 # List all templates
@@ -103,9 +137,13 @@ promptvault bump greeting --minor
 promptvault watch
 ```
 
+![CLI Output](docs/assets/cli-output.png)
+
 ## Template Format
 
 Templates are defined in YAML files with the following structure:
+
+![Template Editing](docs/assets/template-editing.png)
 
 ```yaml
 id: unique_template_id          # Required: Template identifier
