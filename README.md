@@ -1,7 +1,7 @@
 # Dakora
 
-[![CI](https://github.com/bogdanpi/dakora/workflows/CI/badge.svg)](https://github.com/bogdanpi/dakora/actions)
-[![codecov](https://codecov.io/gh/bogdanpi/dakora/branch/main/graph/badge.svg)](https://codecov.io/gh/bogdanpi/dakora)
+[![CI](https://github.com/bogdan-pistol/dakora/workflows/CI/badge.svg)](https://github.com/bogdan-pistol/dakora/actions)
+[![codecov](https://codecov.io/gh/bogdan-pistol/dakora/branch/main/graph/badge.svg)](https://codecov.io/gh/bogdan-pistol/dakora)
 [![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
 [![PyPI version](https://badge.fury.io/py/dakora.svg)](https://badge.fury.io/py/dakora)
 [![License: Apache-2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
@@ -29,7 +29,7 @@ pip install dakora
 Or for development:
 
 ```bash
-git clone https://github.com/yourusername/dakora.git
+git clone https://github.com/bogdan-pistol/dakora.git
 cd dakora
 uv sync
 source .venv/bin/activate
@@ -267,7 +267,7 @@ watcher.start()
 ### Setup
 
 ```bash
-git clone https://github.com/yourusername/dakora.git
+git clone https://github.com/bogdan-pistol/dakora.git
 cd dakora
 uv sync
 source .venv/bin/activate

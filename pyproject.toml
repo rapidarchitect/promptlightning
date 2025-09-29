@@ -29,9 +29,9 @@ classifiers = [
 dakora = "dakora.cli:app"
 
 [project.urls]
-Homepage = "https://github.com/bogdanpi/dakora"
-Repository = "https://github.com/bogdanpi/dakora.git"
-Issues = "https://github.com/bogdanpi/dakora/issues"
+Homepage = "https://github.com/bogdan-pistol/dakora"
+Repository = "https://github.com/bogdan-pistol/dakora.git"
+Issues = "https://github.com/bogdan-pistol/dakora/issues"
 
 [build-system]
 requires = ["hatchling"]
