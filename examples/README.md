@@ -1,10 +1,10 @@
-# PromptVault Examples
+# Dakora Examples
 
-This directory contains practical examples showing how to use PromptVault in real applications.
+This directory contains practical examples showing how to use Dakora in real applications.
 
 ## FastAPI + OpenAI Example
 
-A complete FastAPI application demonstrating PromptVault integration with OpenAI's latest Responses API and GPT-5.
+A complete FastAPI application demonstrating Dakora integration with OpenAI's latest Responses API and GPT-5.
 
 ### Features
 
@@ -13,7 +13,7 @@ A complete FastAPI application demonstrating PromptVault integration with OpenAI
 - 🧠 **GPT-5 with reasoning** capabilities and effort controls
 - 📝 **Multiple template examples** (summarizer, analyzer, chat assistant)
 - 🔍 **Template discovery** via REST API
-- 📊 **Automatic logging** with PromptVault's built-in system
+- 📊 **Automatic logging** with Dakora's built-in system
 - 🏥 **Health checks** and error handling
 
 ### Quick Start
@@ -28,14 +28,14 @@ A complete FastAPI application demonstrating PromptVault integration with OpenAI
    export OPENAI_API_KEY="your-api-key-here"
    ```
 
-3. **Initialize PromptVault:**
+3. **Initialize Dakora:**
    ```bash
    # Copy example templates
    mkdir -p prompts
    cp templates/* prompts/
 
    # Or use the CLI to create a fresh project
-   promptvault init
+   dakora init
    ```
 
 4. **Run the API:**
@@ -104,11 +104,11 @@ The example includes these template files:
 
 - **`analyzer.yaml`** - Content analysis with different types (sentiment, technical, business)
 - **`chat_assistant.yaml`** - General purpose chat assistant
-- **`summarizer.yaml`** - Text summarization (created by `promptvault init`)
+- **`summarizer.yaml`** - Text summarization (created by `dakora init`)
 
 ### Configuration
 
-The example uses `promptvault.yaml` for configuration:
+The example uses `dakora.yaml` for configuration:
 
 ```yaml
 registry: local
@@ -116,7 +116,7 @@ prompt_dir: ./prompts
 logging:
   enabled: true
   backend: sqlite
-  db_path: ./promptvault.db
+  db_path: ./dakora.db
 ```
 
 ### Production Considerations

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PromptVault – Prompt Management Platform</title>
+    <title>Dakora – Prompt Management Platform</title>
     <meta name="description" content="A lightweight, type-safe prompt management platform for Python: live updates, versioning, validation, and optional logging.">
 
     <!-- Favicon -->
@@ -777,7 +777,7 @@
     <header class="header">
         <nav class="nav container">
             <a href="#" class="logo">
-                <i class="fas fa-vault"></i> PromptVault
+                <i class="fas fa-vault"></i> Dakora
             </a>
             <ul class="nav-links">
                 <li><a href="#playground">Playground</a></li>
@@ -808,16 +808,16 @@
             <div class="hero-badge">
                 <i class="fas fa-rocket"></i> Interactive Web Playground Included
             </div>
-            <h1>PromptVault</h1>
+            <h1>Dakora</h1>
             <p class="hero-subtitle">The modern prompt management platform for Python developers</p>
             <p class="hero-description">Manage, version, and hot‑reload prompts with type‑safe inputs, interactive playground, and zero‑deploy updates.</p>
 
             <div class="install-command">
-                <i class="fas fa-terminal"></i> pip install vaultstudio
+                <i class="fas fa-terminal"></i> pip install dakora
             </div>
 
             <div class="cta-buttons">
-                <a href="https://github.com/bogdan-pistol/promptvault" class="btn btn-primary">
+                <a href="https://github.com/bogdanpi/dakora" class="btn btn-primary">
                     <i class="fab fa-github"></i> ⭐ Star on GitHub
                 </a>
                 <a href="#playground" class="btn btn-secondary">
@@ -849,11 +849,11 @@
         <div class="container">
             <h2>🎯 Interactive Playground</h2>
             <p style="text-align: center; font-size: 1.2rem; margin-bottom: 3rem; color: #666; max-width: 800px; margin-left: auto; margin-right: auto;">
-                Experience the power of PromptVault with our modern web playground. Edit, test, and preview templates in real-time with a Jupyter-like interface.
+                Experience the power of Dakora with our modern web playground. Edit, test, and preview templates in real-time with a Jupyter-like interface.
             </p>
 
             <div class="playground-demo">
-                <img src="docs/assets/playground-interface.png" alt="PromptVault Playground Interface" class="playground-screenshot">
+                <img src="docs/assets/playground-interface.png" alt="Dakora Playground Interface" class="playground-screenshot">
                 <div class="playground-features">
                     <div class="playground-feature">
                         <i class="fas fa-edit"></i>
@@ -881,7 +881,7 @@
             <div class="playground-cta">
                 <h3>Ready to try it yourself?</h3>
                 <div class="playground-command" style="margin: 1rem 0;">
-<pre><code>promptvault playground</code></pre>
+<pre><code>dakora playground</code></pre>
                 </div>
                 <p style="color: #666; margin-bottom: 1.5rem;">Automatically builds and launches at <code>http://localhost:3000</code></p>
                 <a href="#quickstart" class="btn btn-primary" style="background: #667eea; color: white;">
@@ -943,14 +943,14 @@
         <div class="container">
             <h2>Quick Start</h2>
             <p style="text-align: center; font-size: 1.2rem; margin-bottom: 3rem; color: #666;">
-                Get up and running with PromptVault in minutes
+                Get up and running with Dakora in minutes
             </p>
 
             <div style="display: grid; gap: 3rem; max-width: 800px; margin: 0 auto;">
                 <div>
                     <h3 style="color: #667eea; margin-bottom: 1rem;"><span style="background: #667eea; color: white; border-radius: 50%; padding: 0.5rem; font-size: 1rem; margin-right: 1rem;">1</span>Initialize Project</h3>
                     <div class="code-example" data-lang="bash">
-<pre><code>promptvault init</code></pre>
+<pre><code>dakora init</code></pre>
                     </div>
                     <p style="color: #666;">Creates configuration file and example templates</p>
                 </div>
@@ -981,10 +981,10 @@ inputs:
                 <div>
                     <h3 style="color: #667eea; margin-bottom: 1rem;"><span style="background: #667eea; color: white; border-radius: 50%; padding: 0.5rem; font-size: 1rem; margin-right: 1rem;">3</span>Use in Python</h3>
                     <div class="code-example" data-lang="python">
-<pre><code>from promptvault import Vault
+<pre><code>from dakora import Vault
 
 # Initialize vault
-vault = Vault("promptvault.yaml")
+vault = Vault("dakora.yaml")
 
 # Get and render template
 template = vault.get("greeting")
@@ -1008,11 +1008,11 @@ print(result)</code></pre>
                     </p>
                     <div class="code-example" data-lang="python">
 <pre><code>from fastapi import FastAPI
-from promptvault import Vault
+from dakora import Vault
 from openai import OpenAI
 
 app = FastAPI()
-vault = Vault("promptvault.yaml")
+vault = Vault("dakora.yaml")
 client = OpenAI()
 
 @app.post("/chat")
@@ -1037,10 +1037,10 @@ async def chat_endpoint(message: str, template_id: str):
                         Hot-reload templates during development for rapid iteration and testing.
                     </p>
                     <div class="code-example" data-lang="python">
-<pre><code>from promptvault import Vault
-from promptvault.watcher import Watcher
+<pre><code>from dakora import Vault
+from dakora.watcher import Watcher
 
-vault = Vault("promptvault.yaml")
+vault = Vault("dakora.yaml")
 watcher = Watcher("./prompts", on_change=vault.invalidate_cache)
 watcher.start()
 
@@ -1057,16 +1057,16 @@ result = template.render(input_text="Hello world")</code></pre>
                     </p>
                     <div class="code-example" data-lang="bash">
 <pre><code># List all templates
-promptvault list
+dakora list
 
 # Get template content
-promptvault get summarizer
+dakora get summarizer
 
 # Bump version (patch, minor, major)
-promptvault bump summarizer --minor
+dakora bump summarizer --minor
 
 # Watch for changes during development
-promptvault watch</code></pre>
+dakora watch</code></pre>
                     </div>
                 </div>
             </div>
@@ -1077,7 +1077,7 @@ promptvault watch</code></pre>
         <div class="container">
             <h2>Join the Community</h2>
             <p style="font-size: 1.2rem; margin-bottom: 2rem; opacity: 0.9;">
-                Help make PromptVault better for everyone
+                Help make Dakora better for everyone
             </p>
 
             <div class="github-stats">
@@ -1100,10 +1100,10 @@ promptvault watch</code></pre>
             </div>
 
             <div style="margin-top: 3rem;">
-                <a href="https://github.com/bogdan-pistol/promptvault" class="btn" style="margin: 0.5rem; background: #4a5568; color: white; border: 2px solid #4a5568;">
+                <a href="https://github.com/bogdanpi/dakora" class="btn" style="margin: 0.5rem; background: #4a5568; color: white; border: 2px solid #4a5568;">
                     <i class="fab fa-github"></i> ⭐ Star on GitHub
                 </a>
-                <a href="https://github.com/bogdan-pistol/promptvault/fork" class="btn btn-secondary" style="margin: 0.5rem;">
+                <a href="https://github.com/bogdanpi/dakora/fork" class="btn btn-secondary" style="margin: 0.5rem;">
                     <i class="fas fa-code-branch"></i> Fork Repository
                 </a>
             </div>
@@ -1132,7 +1132,7 @@ promptvault watch</code></pre>
                         <i class="fas fa-download"></i>
                         <h3>Install Now</h3>
                         <div class="code-example" data-lang="bash" style="margin: 1rem 0; font-size: 0.9rem;">
-<pre><code>pip install vaultstudio</code></pre>
+<pre><code>pip install dakora</code></pre>
                         </div>
                         <a href="#quickstart" class="btn btn-primary">Get Started</a>
                     </div>
@@ -1141,7 +1141,7 @@ promptvault watch</code></pre>
                         <i class="fab fa-github"></i>
                         <h3>Star & Follow</h3>
                         <p>Help us reach 1000+ stars and get updates on new features</p>
-                        <a href="https://github.com/bogdan-pistol/promptvault" class="btn btn-primary">⭐ Star on GitHub</a>
+                        <a href="https://github.com/bogdanpi/dakora" class="btn btn-primary">⭐ Star on GitHub</a>
                     </div>
 
                     <div class="cta-card">
@@ -1158,12 +1158,12 @@ promptvault watch</code></pre>
     <footer class="footer">
         <div class="container">
             <div class="footer-links">
-                <a href="https://github.com/bogdan-pistol/promptvault">GitHub</a>
-                <a href="https://github.com/bogdan-pistol/promptvault/issues">Issues</a>
-                <a href="https://github.com/bogdan-pistol/promptvault/blob/main/LICENSE">License</a>
-                <a href="https://pypi.org/project/promptvault/">PyPI</a>
+                <a href="https://github.com/bogdanpi/dakora">GitHub</a>
+                <a href="https://github.com/bogdanpi/dakora/issues">Issues</a>
+                <a href="https://github.com/bogdanpi/dakora/blob/main/LICENSE">License</a>
+                <a href="https://pypi.org/project/dakora/">PyPI</a>
             </div>
-            <p>&copy; 2024 PromptVault. Released under the Apache-2.0 License.</p>
+            <p>&copy; 2024 Dakora. Released under the Apache-2.0 License.</p>
             <p style="margin-top: 1rem; color: #666;">
                 Built with ❤️ for the Python community
             </p>

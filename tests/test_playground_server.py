@@ -1,10 +1,10 @@
 """
-Unit tests for PromptVault Playground Server
+Unit tests for Dakora Playground Server
 """
 import pytest
 from fastapi.testclient import TestClient
-from promptvault.playground import PlaygroundServer, create_playground
-from promptvault.vault import Vault
+from dakora.playground import PlaygroundServer, create_playground
+from dakora.vault import Vault
 
 
 class TestPlaygroundServer:
@@ -163,7 +163,7 @@ class TestPlaygroundServerWithTestClient:
             response = client.get("/")
             assert response.status_code == 200
             assert "text/html" in response.headers["content-type"]
-            assert "PromptVault Playground" in response.text
+            assert "Dakora Playground" in response.text
 
     def test_404_for_nonexistent_template(self, test_vault):
         """Test 404 response for non-existent template"""
@@ -224,7 +224,7 @@ class TestPlaygroundServerEdgeCases:
                 "logging": {"enabled": False}
             }
 
-            config_path = Path(tmpdir) / "promptvault.yaml"
+            config_path = Path(tmpdir) / "dakora.yaml"
             config_path.write_text(yaml.safe_dump(config))
 
             # Create empty prompts directory

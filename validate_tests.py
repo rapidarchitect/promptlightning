@@ -25,7 +25,7 @@ def run_command(cmd, description):
 
 def main():
     """Run validation tests"""
-    print("🎯 PromptVault Test Validation")
+    print("🎯 Dakora Test Validation")
     print("=" * 50)
 
     tests = [

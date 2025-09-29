@@ -23,7 +23,7 @@ function App() {
             >
               {sidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </Button>
-            <h1 className="text-lg font-semibold">PromptVault</h1>
+            <h1 className="text-lg font-semibold">Dakora</h1>
           </div>
         </div>
       </div>

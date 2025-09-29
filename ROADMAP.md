@@ -1,4 +1,4 @@
-/# PromptVault Roadmap
+/# Dakora Roadmap
 
 **Vision**: Build a successful open-source prompt management SDK that evolves into a commercial platform. Start with developer adoption → show traction → raise funds.
 
@@ -9,10 +9,10 @@
 ## Path to 1000+ Stars (Priority Focus)
 
 ### 1. **Interactive Playground** (Highest Impact - 2 weeks)
-**Goal**: Developers can try PromptVault immediately without installation
+**Goal**: Developers can try Dakora immediately without installation
 
 ```bash
-promptvault playground --web
+dakora playground --web
 # Launches local web server with template editor + live testing
 ```
 
@@ -54,7 +54,7 @@ Create official integrations for maximum community reach:
 
 **Decision**: Hybrid file-based + web UI approach (like Jupyter Notebooks)
 
-### Why Jupyter Model is Perfect for PromptVault:
+### Why Jupyter Model is Perfect for Dakora:
 - **Files stay in filesystem** → Version control friendly
 - **Web UI for better UX** → Team collaboration
 - **Real-time sync** → No data loss between file/web edits
@@ -64,7 +64,7 @@ Create official integrations for maximum community reach:
 
 ```
 ┌─────────────────┐    ┌──────────────────┐    ┌─────────────────┐
-│   Web UI        │    │   PromptVault    │    │   File System   │
+│   Web UI        │    │   Dakora    │    │   File System   │
 │   (Editor)      │◄──►│   API Server     │◄──►│   (Templates)   │
 └─────────────────┘    └──────────────────┘    └─────────────────┘
                               │
@@ -79,13 +79,13 @@ Create official integrations for maximum community reach:
 
 #### 1. API Server Component
 ```python
-# promptvault/server.py
+# dakora/server.py
 from fastapi import FastAPI, WebSocket
 from fastapi.staticfiles import StaticFiles
 from .vault import Vault
 from .watcher import Watcher
 
-class PromptVaultServer:
+class DakoraServer:
     def __init__(self, vault: Vault):
         self.app = FastAPI()
         self.vault = vault
@@ -136,13 +136,13 @@ class PromptVaultServer:
 #### 2. CLI Integration
 ```bash
 # New CLI commands
-promptvault serve --port 3000 --watch
+dakora serve --port 3000 --watch
 # Starts: Web UI + File watcher + API server + WebSocket
 
-promptvault playground --web --port 3001
+dakora playground --web --port 3001
 # Interactive playground mode
 
-promptvault serve --dev
+dakora serve --dev
 # Development mode with hot reload
 ```
 
@@ -217,7 +217,7 @@ export function TemplateList() {
 
 #### 4. Real-time Synchronization
 ```python
-# promptvault/sync.py
+# dakora/sync.py
 class FileWebSync:
     """Handles bidirectional sync between file system and web UI"""
 
@@ -285,7 +285,7 @@ class FileWebSync:
 - Better CLI with interactive creation wizard
 
 **Integration Ecosystem:**
-- LangChain integration (native PromptVault support)
+- LangChain integration (native Dakora support)
 - More LLM providers (Anthropic, Cohere, Mistral, local models)
 - CI/CD tools (GitHub Actions for template validation)
 
@@ -311,7 +311,7 @@ class FileWebSync:
 - Role-based access control
 
 **Platform Infrastructure:**
-- PromptVault Cloud (hosted registry)
+- Dakora Cloud (hosted registry)
 - API Gateway (centralized execution + caching)
 - Webhook system for template change notifications
 
@@ -386,7 +386,7 @@ class FileWebSync:
 **Status**: ✅ FULLY IMPLEMENTED - Ready for users!
 
 **What was delivered**:
-1. ✅ **Enhanced CLI Command**: `promptvault playground`
+1. ✅ **Enhanced CLI Command**: `dakora playground`
    - Auto-builds React UI (smart build detection)
    - Auto-starts FastAPI server
    - Auto-opens browser (like Jupyter)
@@ -423,7 +423,7 @@ class FileWebSync:
 **User Experience Delivered**:
 ```bash
 # Users can now do this single command:
-promptvault playground
+dakora playground
 # → Builds UI automatically
 # → Starts server at localhost:3000
 # → Opens browser automatically
@@ -431,7 +431,7 @@ promptvault playground
 ```
 
 **Technical Implementation**:
-- Enhanced `promptvault/cli.py` with auto-build & browser opening
+- Enhanced `dakora/cli.py` with auto-build & browser opening
 - Complete React UI in `web/` with shadcn/ui components
 - Production build outputs to `playground/` directory
 - FastAPI serves built React app from `playground/` directory
@@ -440,17 +440,183 @@ promptvault playground
 
 ---
 
-## Next Actions (Updated Priority Order)
+## V1 READINESS ASSESSMENT (October 2024)
 
-1. ✅ ~~**Build Interactive Playground** (2 weeks)~~ - **COMPLETED!**
-2. **Create Next.js Integration Example** (1 week) - Largest developer community
-3. **Start VS Code Extension** (3-4 weeks) - Viral potential + productivity boost
-4. ~~**Implement Web UI Architecture** (4 weeks)~~ - **FOUNDATION COMPLETED** (React UI done)
+### 🎯 **Current Status: 70% Ready for 5k Stars**
 
-**Current Status**:
-- Interactive playground is production-ready ✅
-- Users get Jupyter-like experience with `promptvault playground` ✅
-- Modern UI works on all devices ✅
-- Ready to focus on Next.js integration example and VS Code extension
+**Strong Foundation**: Dakora has excellent fundamentals - solid architecture, modern playground UI, comprehensive testing, and professional documentation. The interactive playground is genuinely impressive.
+
+**Missing for 5k Stars**: 3-4 key features that would make developers immediately adopt and share it.
+
+---
+
+## 🚨 **CRITICAL PATH TO 5K STARS** (4-6 weeks)
+
+### **1. VS Code Extension** (HIGHEST IMPACT - Week 1-3)
+**Why**: 30M+ VS Code users, viral potential, solves real pain (YAML editing sucks)
+
+**MVP Features:**
+- Dakora YAML syntax highlighting
+- Live template preview in split pane
+- Input form generation with test execution
+- Template validation and linting
+- Auto-complete for Jinja2 syntax
+
+**Implementation:**
+- Use Monaco Editor (already integrated in playground)
+- Leverage existing React components
+- Build on Language Server Protocol
+
+### **2. Template Marketplace** (VIRAL MULTIPLIER - Week 2-4)
+**Why**: Network effects, showcases capabilities, drives adoption
+
+**MVP Features:**
+- Built-in curated templates (50+ ready-to-use)
+- `dakora browse` command
+- One-click template installation
+- Community sharing platform
+- Categories: Code Review, Email, Content, Analysis
+
+**Implementation:**
+- Extend existing examples system
+- Create GitHub repo with template collection
+- Add marketplace UI to playground
+
+### **3. Framework Integration Blitz** (ECOSYSTEM REACH - Week 3-5)
+**Why**: Meet developers where they are, show real-world usage
+
+**Priority Order:**
+1. **Next.js starter** (biggest dev community)
+2. **LangChain plugin** (LLM ecosystem integration)
+3. **Streamlit widget** (data science audience)
+4. **Django/FastAPI packages** (web dev ecosystem)
+
+### **4. AI-Powered Features** (DIFFERENTIATION - Week 4-6)
+**Why**: Leverage AI hype, show innovation, create stickiness
+
+**MVP Features:**
+- Prompt optimization suggestions
+- Auto-generate templates from examples
+- Template testing with synthetic data
+- Performance analytics and A/B testing
+
+---
+
+## 📊 **SUCCESS METRICS**
+
+### **Month 1 Targets:**
+- 1,000+ GitHub stars
+- 50+ VS Code extension installs/day
+- 100+ templates in marketplace
+- 5+ framework integrations
+
+### **Month 3 Targets:**
+- 5,000+ GitHub stars
+- 500+ weekly active CLI users
+- 1,000+ VS Code extension users
+- 10+ community contributors
+
+---
+
+## 🔄 **EXECUTION STRATEGY**
+
+### **Week 1-2: VS Code Extension MVP**
+- Set up extension scaffolding
+- Implement YAML syntax highlighting
+- Add live preview functionality
+- Publish to VS Code Marketplace
+
+### **Week 2-3: Template Marketplace Foundation**
+- Curate 50+ high-quality templates
+- Implement `dakora browse` command
+- Create marketplace UI in playground
+- Launch community template submission
+
+### **Week 3-4: Next.js Integration & Marketing**
+- Create Next.js starter template
+- Write tutorial blog posts
+- Submit to Hacker News, Reddit r/programming
+- Engage with AI/ML Twitter community
+
+### **Week 4-5: LangChain Integration**
+- Build native LangChain prompt template support
+- Submit PR to LangChain repository
+- Create documentation and examples
+
+### **Week 5-6: AI Features & Polish**
+- Implement prompt optimization suggestions
+- Add template analytics dashboard
+- Polish documentation and onboarding
+- Prepare for major launch campaign
+
+---
+
+## 🎯 **COMPETITIVE POSITIONING**
+
+**vs. Weights & Biases/MLflow**: Developer-first UX, template-native design
+**vs. LangChain PromptTemplate**: Type safety, versioning, interactive playground
+**vs. Custom solutions**: Zero config, professional tooling, community ecosystem
+
+**Unique Value Props:**
+1. **Interactive Playground** (like Jupyter for prompts)
+2. **Type-Safe Templates** (catch errors before production)
+3. **Developer Tooling** (VS Code, CLI, framework integrations)
+4. **Community Ecosystem** (marketplace, sharing, collaboration)
+
+---
+
+## 📈 **POST-5K ROADMAP** (Months 4-12)
+
+### **Platform Features:**
+- Team collaboration (shared workspaces)
+- Git-like versioning and branching
+- Prompt execution analytics
+- A/B testing framework
+
+### **Enterprise Features:**
+- On-premise deployment
+- SSO and access controls
+- Advanced monitoring and logging
+- Professional services
+
+### **Monetization:**
+- Dakora Cloud (hosted registry)
+- Premium VS Code extension features
+- Enterprise team plans
+- Template marketplace revenue share
+
+---
+
+## ✅ **COMPLETED MILESTONES**
+
+1. ✅ **Interactive Playground** - Modern React UI with shadcn/ui
+2. ✅ **Core Architecture** - Thread-safe vault, type validation, hot reload
+3. ✅ **Professional Packaging** - PyPI distribution, comprehensive docs
+4. ✅ **FastAPI Integration** - Production-ready example with OpenAI
+5. ✅ **Comprehensive Testing** - 885 lines of API tests
+
+---
+
+## 🚀 **LAUNCH STRATEGY**
+
+### **Pre-Launch (Weeks 1-4):**
+- Build core missing features
+- Create compelling demos and tutorials
+- Engage early adopters and gather feedback
+
+### **Launch Week (Week 5):**
+- Coordinate launch across multiple channels
+- Hacker News submission
+- Product Hunt launch
+- AI/ML community engagement
+- Developer podcast appearances
+
+### **Post-Launch (Weeks 6-8):**
+- Community building and support
+- Feature iteration based on feedback
+- Partnership development
+- Content marketing campaign
+
+**Target**: 5,000 stars within 8 weeks of launch
 
 **Key Success Factor**: Focus on developer adoption first through superior developer experience, then build platform features that create stickiness and enable monetization.

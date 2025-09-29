@@ -30,16 +30,16 @@ Thumbs.db
 # Claude Code related files
 .claude/
 
-# PromptVault user-generated files (from init command)
-promptvault.yaml
-promptvault.db
+# Dakora user-generated files (from init command)
+dakora.yaml
+dakora.db
 *.db
 *.sqlite
 *.sqlite3
 
 # User prompt directories (but keep example prompts in repo)
 # Note: The default prompts/ folder contains examples and should be tracked
-# Users can override prompt_dir in promptvault.yaml to use different folders
+# Users can override prompt_dir in dakora.yaml to use different folders
 
 # Development and testing files
 *.log

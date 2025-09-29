@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-FastAPI example showing how to use PromptVault with OpenAI Responses API.
+FastAPI example showing how to use Dakora with OpenAI Responses API.
 
 This example demonstrates:
 - Loading prompt templates from YAML files
@@ -10,7 +10,7 @@ This example demonstrates:
 - Proper error handling and logging
 
 Setup:
-1. pip install fastapi uvicorn openai promptvault
+1. pip install fastapi uvicorn openai dakora
 2. Set your OPENAI_API_KEY environment variable
 3. Run: uvicorn fastapi_openai:app --reload
 4. Visit: http://localhost:8000/docs
@@ -21,12 +21,12 @@ from typing import Optional, List, Dict, Any
 from fastapi import FastAPI, HTTPException, BackgroundTasks
 from pydantic import BaseModel, Field
 from openai import OpenAI
-from promptvault import Vault
+from dakora import Vault
 
 # Initialize FastAPI app
 app = FastAPI(
-    title="PromptVault + OpenAI Responses API",
-    description="Example API using PromptVault with OpenAI's latest Responses API and GPT-5",
+    title="Dakora + OpenAI Responses API",
+    description="Example API using Dakora with OpenAI's latest Responses API and GPT-5",
     version="1.0.0"
 )
 
@@ -37,9 +37,9 @@ if not api_key:
 
 client = OpenAI(api_key=api_key)
 
-# Initialize PromptVault (assumes you've run `promptvault init`)
+# Initialize Dakora (assumes you've run `dakora init`)
 try:
-    vault = Vault("promptvault.yaml")
+    vault = Vault("dakora.yaml")
 except Exception:
     # Fallback for demo purposes
     vault = Vault(prompt_dir="./prompts")

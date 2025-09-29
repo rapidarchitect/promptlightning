@@ -1,5 +1,5 @@
 """
-PromptVault Playground Server
+Dakora Playground Server
 
 A FastAPI server that provides a web-based playground for creating,
 editing, and testing prompt templates in real-time.
@@ -65,7 +65,7 @@ class PlaygroundServer:
 
     def _create_app(self) -> FastAPI:
         app = FastAPI(
-            title="PromptVault Playground",
+            title="Dakora Playground",
             description="Interactive playground for prompt template development",
             version="0.1.0"
         )
@@ -353,7 +353,7 @@ class PlaygroundServer:
                 <!DOCTYPE html>
                 <html>
                 <head>
-                    <title>PromptVault Playground</title>
+                    <title>Dakora Playground</title>
                     <meta charset="utf-8">
                     <meta name="viewport" content="width=device-width, initial-scale=1">
                     <style>
@@ -372,7 +372,7 @@ class PlaygroundServer:
                 <body>
                     <div class="container">
                         <div class="header">
-                            <h1>🎯 PromptVault Playground</h1>
+                            <h1>🎯 Dakora Playground</h1>
                             <p>Interactive playground for prompt template development</p>
                         </div>
                         <div class="content">
@@ -539,7 +539,7 @@ Focus on providing value and actionable insights.""",
 
     def run(self, debug: bool = False):
         """Start the playground server."""
-        print(f"🎯 Starting PromptVault Playground at http://{self.host}:{self.port}")
+        print(f"🎯 Starting Dakora Playground at http://{self.host}:{self.port}")
         print(f"📁 Prompt directory: {self.vault.config.get('prompt_dir', 'N/A')}")
         print(f"📊 Logging: {'enabled' if self.vault.logger else 'disabled'}")
         print("")

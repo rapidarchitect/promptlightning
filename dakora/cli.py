@@ -14,9 +14,9 @@ def init():
     cfg = {
         "registry": "local",
         "prompt_dir": "./prompts",
-        "logging": {"enabled": True, "backend": "sqlite", "db_path": "./promptvault.db"},
+        "logging": {"enabled": True, "backend": "sqlite", "db_path": "./dakora.db"},
     }
-    (root / "promptvault.yaml").write_text(yaml.safe_dump(cfg, sort_keys=False), encoding="utf-8")
+    (root / "dakora.yaml").write_text(yaml.safe_dump(cfg, sort_keys=False), encoding="utf-8")
     example = {
         "id": "summarizer",
         "version": "1.0.0",
@@ -25,17 +25,17 @@ def init():
         "inputs": {"input_text": {"type": "string", "required": True}},
     }
     (root / "prompts" / "summarizer.yaml").write_text(yaml.safe_dump(example, sort_keys=False, allow_unicode=True), encoding="utf-8")
-    typer.echo("Initialized PromptVault project.")
+    typer.echo("Initialized Dakora project.")
 
 @app.command()
 def list():
-    v = Vault("promptvault.yaml")
+    v = Vault("dakora.yaml")
     for tid in v.list():
         typer.echo(tid)
 
 @app.command()
 def get(id: str):
-    v = Vault("promptvault.yaml")
+    v = Vault("dakora.yaml")
     tmpl = v.get(id)
     # print raw template without rendering
     sys.stdout.write(tmpl.spec.template)
@@ -43,7 +43,7 @@ def get(id: str):
 @app.command()
 def bump(id: str, patch: bool = False, minor: bool = False, major: bool = False):
     # naive semantic bump: finds the file containing id and rewrites version
-    prompt_dir = Path(yaml.safe_load(Path("promptvault.yaml").read_text())["prompt_dir"])
+    prompt_dir = Path(yaml.safe_load(Path("dakora.yaml").read_text())["prompt_dir"])
     target = None
     for p in prompt_dir.rglob("*.y*ml"):
         data = yaml.safe_load(p.read_text()) or {}
@@ -63,8 +63,8 @@ def bump(id: str, patch: bool = False, minor: bool = False, major: bool = False)
 
 @app.command()
 def watch():
-    v = Vault("promptvault.yaml")
-    pd = Path(yaml.safe_load(Path("promptvault.yaml").read_text())["prompt_dir"]).resolve()
+    v = Vault("dakora.yaml")
+    pd = Path(yaml.safe_load(Path("dakora.yaml").read_text())["prompt_dir"]).resolve()
     typer.echo(f"Watching {pd} for changes. Ctrl+C to stop.")
     w = Watcher(pd, on_change=v.invalidate_cache)
     w.start()
@@ -159,7 +159,7 @@ def _open_browser_delayed(url: str, delay: float = 2.0):
 def playground(
     port: int = typer.Option(3000, help="Port to run playground on"),
     host: str = typer.Option("localhost", help="Host to bind to"),
-    config: str = typer.Option("promptvault.yaml", help="Config file path"),
+    config: str = typer.Option("dakora.yaml", help="Config file path"),
     prompt_dir: str = typer.Option(None, help="Prompt directory (overrides config)"),
     dev: bool = typer.Option(False, "--dev", help="Development mode with auto-reload"),
     no_build: bool = typer.Option(False, "--no-build", help="Skip building the UI"),
@@ -195,7 +195,7 @@ def playground(
         if dev:
             typer.echo("🚀 Starting playground in development mode...")
         else:
-            typer.echo("🎯 Starting PromptVault Playground...")
+            typer.echo("🎯 Starting Dakora Playground...")
 
         typer.echo("📍 Press Ctrl+C to stop the server")
         typer.echo("")
@@ -204,7 +204,7 @@ def playground(
 
     except FileNotFoundError as e:
         typer.echo(f"❌ Config file not found: {e}", err=True)
-        typer.echo("💡 Run 'promptvault init' to create a new project", err=True)
+        typer.echo("💡 Run 'dakora init' to create a new project", err=True)
         raise typer.Exit(1)
     except KeyboardInterrupt:
         typer.echo("\n👋 Stopping playground server...")

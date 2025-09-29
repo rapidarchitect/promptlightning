@@ -5,14 +5,14 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-PromptVault is a Python library for managing and rendering prompt templates with type-safe inputs, versioning, and optional logging. The architecture consists of:
+Dakora is a Python library for managing and rendering prompt templates with type-safe inputs, versioning, and optional logging. The architecture consists of:
 
-- **Vault**: Main public API (`promptvault/vault.py`) - loads templates, handles caching with thread-safe RLock, and provides TemplateHandle objects
-- **Registry**: Template discovery system (`promptvault/registry/`) - abstract base with LocalRegistry implementation that scans YAML files in prompt directories
-- **Model**: Pydantic-based template specifications (`promptvault/model.py`) - defines TemplateSpec with input validation and type coercion
-- **Renderer**: Jinja2-based template rendering (`promptvault/renderer.py`) - includes custom filters like `yaml` and `default`
-- **CLI**: Typer-based command interface (`promptvault/cli.py`) - provides init, list, get, bump, watch, and playground commands
-- **Playground**: FastAPI-based web server (`promptvault/playground.py`) - interactive web interface for template development and testing
+- **Vault**: Main public API (`dakora/vault.py`) - loads templates, handles caching with thread-safe RLock, and provides TemplateHandle objects
+- **Registry**: Template discovery system (`dakora/registry/`) - abstract base with LocalRegistry implementation that scans YAML files in prompt directories
+- **Model**: Pydantic-based template specifications (`dakora/model.py`) - defines TemplateSpec with input validation and type coercion
+- **Renderer**: Jinja2-based template rendering (`dakora/renderer.py`) - includes custom filters like `yaml` and `default`
+- **CLI**: Typer-based command interface (`dakora/cli.py`) - provides init, list, get, bump, watch, and playground commands
+- **Playground**: FastAPI-based web server (`dakora/playground.py`) - interactive web interface for template development and testing
 
 Templates are stored as YAML files with structure: `{id, version, description, template, inputs, metadata}`. The `inputs` field defines typed parameters (string, number, boolean, array<string>, object) with validation and defaults.
 
@@ -27,38 +27,38 @@ source .venv/bin/activate
 export PATH="$HOME/.local/bin:$PATH" && uv sync
 
 # Run CLI commands during development
-export PATH="$HOME/.local/bin:$PATH" && uv run python -m promptvault.cli --help
+export PATH="$HOME/.local/bin:$PATH" && uv run python -m dakora.cli --help
 ```
 
 **Testing the CLI:**
 ```bash
 # Initialize a test project
-export PATH="$HOME/.local/bin:$PATH" && uv run python -m promptvault.cli init
+export PATH="$HOME/.local/bin:$PATH" && uv run python -m dakora.cli init
 
 # List templates
-export PATH="$HOME/.local/bin:$PATH" && uv run python -m promptvault.cli list
+export PATH="$HOME/.local/bin:$PATH" && uv run python -m dakora.cli list
 
 # Get template content
-export PATH="$HOME/.local/bin:$PATH" && uv run python -m promptvault.cli get summarizer
+export PATH="$HOME/.local/bin:$PATH" && uv run python -m dakora.cli get summarizer
 
 # Watch for changes
-export PATH="$HOME/.local/bin:$PATH" && uv run python -m promptvault.cli watch
+export PATH="$HOME/.local/bin:$PATH" && uv run python -m dakora.cli watch
 ```
 
 **Testing the Playground:**
 ```bash
 # Start interactive playground web interface
-export PATH="$HOME/.local/bin:$PATH" && uv run python -m promptvault.cli playground --port 3000
+export PATH="$HOME/.local/bin:$PATH" && uv run python -m dakora.cli playground --port 3000
 
 # Start in development mode with auto-reload
-export PATH="$HOME/.local/bin:$PATH" && uv run python -m promptvault.cli playground --dev
+export PATH="$HOME/.local/bin:$PATH" && uv run python -m dakora.cli playground --dev
 ```
 
 **Library Usage:**
 ```bash
 # Test vault functionality
 export PATH="$HOME/.local/bin:$PATH" && uv run python -c "
-from promptvault.vault import Vault
+from dakora.vault import Vault
 v = Vault(prompt_dir='./prompts')
 tmpl = v.get('summarizer')
 print(tmpl.render(input_text='test'))
@@ -79,7 +79,7 @@ export PATH="$HOME/.local/bin:$PATH" && uv run python tests/test_runner.py perfo
 python validate_tests.py
 
 # Run tests with coverage
-export PATH="$HOME/.local/bin:$PATH" && uv run python -m pytest --cov=promptvault
+export PATH="$HOME/.local/bin:$PATH" && uv run python -m pytest --cov=dakora
 ```
 
 ## Key Architecture Notes
@@ -93,14 +93,14 @@ export PATH="$HOME/.local/bin:$PATH" && uv run python -m pytest --cov=promptvaul
 
 ## Configuration
 
-Projects use `promptvault.yaml` config files with structure:
+Projects use `dakora.yaml` config files with structure:
 ```yaml
 registry: "local"
 prompt_dir: "./prompts"
 logging:
   enabled: true
   backend: "sqlite"
-  db_path: "./promptvault.db"
+  db_path: "./dakora.db"
 ```
 
 ## Code Style Guidelines

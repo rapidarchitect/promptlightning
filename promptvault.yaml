@@ -1,0 +1,6 @@
+registry: local
+prompt_dir: ./prompts
+logging:
+  enabled: true
+  backend: sqlite
+  db_path: ./dakora.db

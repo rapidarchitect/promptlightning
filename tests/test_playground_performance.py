@@ -1,5 +1,5 @@
 """
-Performance and stress tests for PromptVault Playground API
+Performance and stress tests for Dakora Playground API
 """
 import pytest
 import requests

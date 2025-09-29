@@ -121,7 +121,7 @@ export function StatusBar() {
           )}
 
           {/* Version */}
-          <span className="text-muted-foreground/70">PromptVault</span>
+          <span className="text-muted-foreground/70">Dakora</span>
         </div>
       </div>
     </div>

@@ -1,5 +1,5 @@
 [project]
-name = "vaultstudio"
+name = "dakora"
 version = "0.2.0"
 description = "A Python library for managing and rendering prompt templates with type-safe inputs, versioning, and optional logging"
 readme = "README.md"
@@ -26,12 +26,12 @@ classifiers = [
 ]
 
 [project.scripts]
-promptvault = "promptvault.cli:app"
+dakora = "dakora.cli:app"
 
 [project.urls]
-Homepage = "https://github.com/bogdanpi/promptvault"
-Repository = "https://github.com/bogdanpi/promptvault.git"
-Issues = "https://github.com/bogdanpi/promptvault/issues"
+Homepage = "https://github.com/bogdanpi/dakora"
+Repository = "https://github.com/bogdanpi/dakora.git"
+Issues = "https://github.com/bogdanpi/dakora/issues"
 
 [build-system]
 requires = ["hatchling"]

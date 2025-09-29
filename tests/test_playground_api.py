@@ -1,5 +1,5 @@
 """
-Tests for the PromptVault Playground API using requests
+Tests for the Dakora Playground API using requests
 """
 import pytest
 import requests
@@ -95,7 +95,7 @@ class TestPlaygroundTemplatesAPI:
         assert data["inputs"]["message"]["required"] is False
 
         # Check default value
-        assert data["inputs"]["message"]["default"] == "Welcome to PromptVault!"
+        assert data["inputs"]["message"]["default"] == "Welcome to Dakora!"
 
         # Check metadata
         assert "metadata" in data
@@ -159,7 +159,7 @@ class TestPlaygroundRenderAPI:
 
         rendered = data["rendered"]
         assert "Welcome Bob!" in rendered
-        assert "Welcome to PromptVault!" in rendered  # Default message
+        assert "Welcome to Dakora!" in rendered  # Default message
         assert "years old" not in rendered  # Age not provided
 
     def test_complex_template_render_full(self, playground_url):
@@ -360,7 +360,7 @@ class TestPlaygroundTemplateCreationAPI:
                 "service": {
                     "type": "string",
                     "required": True,
-                    "default": "PromptVault"
+                    "default": "Dakora"
                 }
             },
             "metadata": {
@@ -391,7 +391,7 @@ class TestPlaygroundTemplateCreationAPI:
         assert "service" in data["inputs"]
         assert data["inputs"]["service"]["type"] == "string"
         assert data["inputs"]["service"]["required"] is True
-        assert data["inputs"]["service"]["default"] == "PromptVault"
+        assert data["inputs"]["service"]["default"] == "Dakora"
 
         # Verify metadata
         assert data["metadata"]["tags"] == ["test", "api"]
@@ -699,7 +699,7 @@ class TestPlaygroundErrorHandling:
         response = requests.get(playground_url)
         assert response.status_code == 200
         assert "text/html" in response.headers.get("content-type", "")
-        assert "PromptVault Playground" in response.text
+        assert "Dakora Playground" in response.text
 
     def test_nonexistent_endpoint(self, playground_url):
         """Test that non-existent endpoints return 404"""

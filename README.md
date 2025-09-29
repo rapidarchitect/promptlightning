@@ -1,9 +1,9 @@
-# PromptVault
+# Dakora
 
-[![CI](https://github.com/bogdanpi/promptvault/workflows/CI/badge.svg)](https://github.com/bogdanpi/promptvault/actions)
-[![codecov](https://codecov.io/gh/bogdanpi/promptvault/branch/main/graph/badge.svg)](https://codecov.io/gh/bogdanpi/promptvault)
+[![CI](https://github.com/bogdanpi/dakora/workflows/CI/badge.svg)](https://github.com/bogdanpi/dakora/actions)
+[![codecov](https://codecov.io/gh/bogdanpi/dakora/branch/main/graph/badge.svg)](https://codecov.io/gh/bogdanpi/dakora)
 [![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
-[![PyPI version](https://badge.fury.io/py/promptvault.svg)](https://badge.fury.io/py/promptvault)
+[![PyPI version](https://badge.fury.io/py/dakora.svg)](https://badge.fury.io/py/dakora)
 [![License: Apache-2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
 A Python library for managing and rendering prompt templates with type-safe inputs, versioning, and an interactive web playground.
@@ -23,14 +23,14 @@ A Python library for managing and rendering prompt templates with type-safe inpu
 ## Installation
 
 ```bash
-pip install vaultstudio
+pip install dakora
 ```
 
 Or for development:
 
 ```bash
-git clone https://github.com/yourusername/promptvault.git
-cd promptvault
+git clone https://github.com/yourusername/dakora.git
+cd dakora
 uv sync
 source .venv/bin/activate
 ```
@@ -40,11 +40,11 @@ source .venv/bin/activate
 ### 1. Initialize a project
 
 ```bash
-promptvault init
+dakora init
 ```
 
 This creates:
-- `promptvault.yaml` - Configuration file
+- `dakora.yaml` - Configuration file
 - `prompts/` - Directory for template files
 - `prompts/summarizer.yaml` - Example template
 
@@ -70,16 +70,16 @@ inputs:
   message:
     type: string
     required: false
-    default: "Welcome to PromptVault!"
+    default: "Welcome to Dakora!"
 ```
 
 ### 3. Use in Python
 
 ```python
-from promptvault import Vault
+from dakora import Vault
 
 # Initialize vault
-vault = Vault("promptvault.yaml")
+vault = Vault("dakora.yaml")
 
 # Get and render template
 template = vault.get("greeting")
@@ -88,7 +88,7 @@ print(result)
 # Output:
 # Hello Alice!
 # You are 25 years old.
-# Welcome to PromptVault!
+# Welcome to Dakora!
 ```
 
 ### 4. Interactive Playground 🎯
@@ -96,7 +96,7 @@ print(result)
 Launch the web-based playground (like Jupyter Notebook):
 
 ```bash
-promptvault playground
+dakora playground
 ```
 
 ![Playground Demo](docs/assets/playground-demo.gif)
@@ -117,9 +117,9 @@ This **automatically**:
 
 **Options:**
 ```bash
-promptvault playground --port 8080      # Custom port
-promptvault playground --no-browser     # Don't open browser
-promptvault playground --no-build       # Skip UI build
+dakora playground --port 8080      # Custom port
+dakora playground --no-browser     # Don't open browser
+dakora playground --no-build       # Skip UI build
 ```
 
 ### 5. CLI Usage
@@ -128,16 +128,16 @@ promptvault playground --no-build       # Skip UI build
 
 ```bash
 # List all templates
-promptvault list
+dakora list
 
 # Get template content
-promptvault get greeting
+dakora get greeting
 
 # Bump version
-promptvault bump greeting --minor
+dakora bump greeting --minor
 
 # Watch for changes
-promptvault watch
+dakora watch
 ```
 
 ![CLI Output](docs/assets/cli-output.png)
@@ -180,7 +180,7 @@ metadata:                       # Optional: Custom metadata
 
 ## Configuration
 
-`promptvault.yaml` structure:
+`dakora.yaml` structure:
 
 ```yaml
 registry: local                 # Registry type (currently only 'local')
@@ -188,22 +188,22 @@ prompt_dir: ./prompts          # Path to templates directory
 logging:                       # Optional: Execution logging
   enabled: true
   backend: sqlite
-  db_path: ./promptvault.db
+  db_path: ./dakora.db
 ```
 
 ## Advanced Usage
 
 ### FastAPI + OpenAI Integration
 
-PromptVault works great with web APIs. Here's a FastAPI example using OpenAI's latest Responses API and GPT-5:
+Dakora works great with web APIs. Here's a FastAPI example using OpenAI's latest Responses API and GPT-5:
 
 ```python
 from fastapi import FastAPI
-from promptvault import Vault
+from dakora import Vault
 from openai import OpenAI
 
 app = FastAPI()
-vault = Vault("promptvault.yaml")
+vault = Vault("dakora.yaml")
 client = OpenAI()
 
 @app.post("/chat")
@@ -228,9 +228,9 @@ See [examples/](examples/) for a complete FastAPI application with multiple endp
 ### With Logging
 
 ```python
-from promptvault import Vault
+from dakora import Vault
 
-vault = Vault("promptvault.yaml")
+vault = Vault("dakora.yaml")
 template = vault.get("my_template")
 
 # Log execution automatically
@@ -243,7 +243,7 @@ result = template.run(
 ### Direct Vault Creation
 
 ```python
-from promptvault import Vault
+from dakora import Vault
 
 # Skip config file, use prompt directory directly
 vault = Vault(prompt_dir="./my_prompts")
@@ -252,10 +252,10 @@ vault = Vault(prompt_dir="./my_prompts")
 ### Hot Reload in Development
 
 ```python
-from promptvault import Vault
-from promptvault.watcher import Watcher
+from dakora import Vault
+from dakora.watcher import Watcher
 
-vault = Vault("promptvault.yaml")
+vault = Vault("dakora.yaml")
 watcher = Watcher("./prompts", on_change=vault.invalidate_cache)
 watcher.start()
 
@@ -267,8 +267,8 @@ watcher.start()
 ### Setup
 
 ```bash
-git clone https://github.com/yourusername/promptvault.git
-cd promptvault
+git clone https://github.com/yourusername/dakora.git
+cd dakora
 uv sync
 source .venv/bin/activate
 ```
@@ -280,7 +280,7 @@ source .venv/bin/activate
 uv run pytest
 
 # Run with coverage
-uv run pytest --cov=promptvault
+uv run pytest --cov=dakora
 
 # Run smoke tests
 uv run python tests/smoke_test.py
@@ -296,7 +296,7 @@ uv run ruff format
 uv run ruff check
 
 # Type checking
-uv run mypy promptvault
+uv run mypy dakora
 ```
 
 ### Development Commands

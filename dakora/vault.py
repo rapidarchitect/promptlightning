@@ -7,7 +7,7 @@ from threading import RLock
 from .renderer import Renderer
 from .registry.local import LocalRegistry
 from .model import TemplateSpec
-from .exceptions import ValidationError, RenderError, TemplateNotFound, PromptVaultError
+from .exceptions import ValidationError, RenderError, TemplateNotFound, DakoraError
 from .logging import Logger
 
 class Vault:
@@ -20,7 +20,7 @@ class Vault:
     """
     def __init__(self, config_path: str | None = None, prompt_dir: str | None = None):
         if not (config_path or prompt_dir):
-            raise PromptVaultError("pass config_path or prompt_dir")
+            raise DakoraError("pass config_path or prompt_dir")
         self.config = self._load_config(config_path) if config_path else {"prompt_dir": prompt_dir, "logging": {"enabled": False}}
         self.registry = LocalRegistry(self.config["prompt_dir"])
         self.renderer = Renderer()
@@ -32,7 +32,7 @@ class Vault:
     def _load_config(path: str) -> Dict:
         data = yaml.safe_load(Path(path).read_text(encoding="utf-8")) or {}
         if "prompt_dir" not in data:
-            raise PromptVaultError("promptvault.yaml missing prompt_dir")
+            raise DakoraError("dakora.yaml missing prompt_dir")
         if "logging" not in data:
             data["logging"] = {"enabled": False}
         return data

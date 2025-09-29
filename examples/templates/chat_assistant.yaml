@@ -21,5 +21,5 @@ inputs:
 
 metadata:
   tags: ["chat", "assistant", "general"]
-  author: "PromptVault Example"
+  author: "Dakora Example"
   use_cases: ["general chat", "Q&A", "customer support"]

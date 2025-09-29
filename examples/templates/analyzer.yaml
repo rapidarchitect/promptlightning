@@ -40,5 +40,5 @@ inputs:
 
 metadata:
   tags: ["analysis", "ai", "content"]
-  author: "PromptVault Example"
+  author: "Dakora Example"
   use_cases: ["content analysis", "document review", "sentiment analysis"]
