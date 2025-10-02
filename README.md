@@ -5,6 +5,7 @@
 [![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
 [![PyPI version](https://badge.fury.io/py/dakora.svg)](https://badge.fury.io/py/dakora)
 [![License: Apache-2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+[![Discord](https://img.shields.io/discord/1422246380096720969?style=for-the-badge&color=667eea&label=Community&logo=discord&logoColor=white)](https://discord.gg/QSRRcFjzE8)
 
 A Python library for managing and rendering prompt templates with type-safe inputs, versioning, and an interactive web playground.
 
@@ -320,6 +321,14 @@ uv run mypy dakora
 See [CLAUDE.md](CLAUDE.md) for detailed development guidance.
 
 ## Contributing
+
+We welcome contributions! Join our community:
+
+- 💬 **[Discord](https://discord.gg/QSRRcFjzE8)** - Join our Discord server for discussions and support
+- 🐛 **Issues** - Report bugs or request features
+- 🔀 **Pull Requests** - Submit improvements
+
+### Development Setup
 
 1. Fork the repository
 2. Create a feature branch: `git checkout -b feature-name`
