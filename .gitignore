@@ -31,6 +31,7 @@ Thumbs.db
 .claude/
 .serena/
 CLAUDE.md
+docs/internal/
 
 # PromptLightning user-generated files (from init command)
 promptlightning.yaml
