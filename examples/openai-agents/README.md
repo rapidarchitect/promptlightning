@@ -1,6 +1,6 @@
 # Multi-Agent Research Assistant
 
-Build intelligent research agents using OpenAI Agents Framework with Dakora for clean prompt management.
+Build intelligent research agents using OpenAI Agents Framework with PromptLightning for clean prompt management.
 
 ## What It Does
 
@@ -9,7 +9,7 @@ A multi-agent system that researches any topic by:
 2. Analyzing each area in depth
 3. Synthesizing findings into a coherent report
 
-**Tech Stack**: OpenAI Agents Framework + Dakora + Python
+**Tech Stack**: OpenAI Agents Framework + PromptLightning + Python
 
 ## Requirements
 
@@ -70,7 +70,7 @@ The system uses **3 specialized agents**:
 | **Analyst** | Deep dives into each subtopic independently |
 | **Synthesizer** | Combines all findings into unified insights |
 
-## Prompt Management with Dakora
+## Prompt Management with PromptLightning
 
 All agent instructions live in `prompts/` as version-controlled YAML files:
 
@@ -83,7 +83,7 @@ prompts/
 └── report_template.yaml       # Output formatting
 ```
 
-### Why Dakora?
+### Why PromptLightning?
 
 **Type-Safe Inputs** - Validate data before it reaches the LLM
 ```yaml
@@ -114,15 +114,15 @@ description: Added economic analysis section
 
 **Separation of Concerns** - Agent logic in Python, instructions in YAML
 
-### Dakora Playground
+### PromptLightning Playground
 
 Visualize and test prompts in the interactive UI:
 
 ```bash
-dakora playground
+promptlightning playground
 ```
 
-![Dakora Playground](./docs/dakora-playground.png)
+![PromptLightning Playground](./docs/promptlightning-playground.png)
 
 ## Example Output
 
@@ -206,7 +206,7 @@ new_agent = Agent(
 - Conversation state management
 - Tool execution
 
-**Dakora** handles:
+**PromptLightning** handles:
 - Prompt template storage
 - Input validation and type safety
 - Version control
@@ -219,13 +219,13 @@ new_agent = Agent(
 ```
 openai-agents/
 ├── research_assistant.py       # Main script
-├── prompts/                    # Dakora templates
+├── prompts/                    # PromptLightning templates
 │   ├── coordinator_system.yaml
 │   ├── planner_system.yaml
 │   ├── analyst_system.yaml
 │   ├── synthesizer_system.yaml
 │   └── report_template.yaml
-├── dakora.yaml                 # Dakora config
+├── promptlightning.yaml                 # PromptLightning config
 ├── requirements.txt
 ├── .env.example
 └── README.md
@@ -278,7 +278,7 @@ OPENAI_API_KEY=your_actual_key
 **Prompts not loading**
 ```bash
 # Verify setup
-dakora list  # Should show 5+ templates
+promptlightning list  # Should show 5+ templates
 ```
 
 ## License

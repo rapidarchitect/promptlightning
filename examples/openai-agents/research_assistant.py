@@ -3,11 +3,11 @@ import json
 from datetime import datetime
 from dotenv import load_dotenv
 from agents import Agent
-from dakora.vault import Vault
+from promptlightning.vault import Vault
 
 load_dotenv()
 
-vault = Vault(config_path="dakora.yaml")
+vault = Vault(config_path="promptlightning.yaml")
 
 
 def create_research_planner():

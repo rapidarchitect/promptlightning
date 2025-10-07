@@ -1,5 +1,5 @@
 """
-Dakora Playground Server
+PromptLightning Playground Server
 
 A FastAPI server that provides a web-based playground for creating,
 editing, and testing prompt templates in real-time.
@@ -11,12 +11,16 @@ import yaml
 import uuid
 import tempfile
 import shutil
+import hashlib
+import time
 from pathlib import Path
 from typing import Dict, List, Any, Optional
+from functools import lru_cache
 from fastapi import FastAPI, HTTPException, Request, Cookie
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import HTMLResponse, JSONResponse, Response
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.middleware.gzip import GZipMiddleware
 from pydantic import BaseModel, Field
 import uvicorn
 
@@ -65,21 +69,63 @@ class PlaygroundServer:
         self.vault = vault
         self.host = host
         self.port = port
+        self._cache_version = 0
         self.app = self._create_app()
+
+    def _get_vault_hash(self) -> str:
+        """Generate hash for cache invalidation based on cache version."""
+        return f"{self._cache_version}_{id(self.vault)}"
+
+    def _invalidate_cache(self):
+        """Invalidate all caches by incrementing version."""
+        self._cache_version += 1
+        self.vault.invalidate_cache()
+        self._get_template_list_cached.cache_clear()
+        self._get_template_cached.cache_clear()
+
+    @lru_cache(maxsize=1)
+    def _get_template_list_cached(self, cache_key: str) -> List[str]:
+        """Cached template list retrieval."""
+        return list(self.vault.list())
+
+    @lru_cache(maxsize=128)
+    def _get_template_cached(self, template_id: str, cache_key: str) -> TemplateResponse:
+        """Cached template retrieval."""
+        template = self.vault.get(template_id)
+        spec = template.spec
+        return TemplateResponse(
+            id=spec.id,
+            version=spec.version,
+            description=spec.description,
+            template=spec.template,
+            inputs={name: {
+                "type": input_spec.type,
+                "required": input_spec.required,
+                "default": input_spec.default
+            } for name, input_spec in spec.inputs.items()},
+            metadata=spec.metadata
+        )
 
     def _create_app(self) -> FastAPI:
         app = FastAPI(
-            title="Dakora Playground",
+            title="PromptLightning Playground",
             description="Interactive playground for prompt template development",
             version="0.1.0"
         )
 
-        # API Routes
+        app.add_middleware(GZipMiddleware, minimum_size=1000)
+
         @app.get("/api/templates", response_model=List[str])
         async def list_templates():
             """List all available template IDs."""
             try:
-                return list(self.vault.list())
+                cache_key = self._get_vault_hash()
+                templates = self._get_template_list_cached(cache_key)
+                return Response(
+                    content=json.dumps(templates),
+                    media_type="application/json",
+                    headers={"Cache-Control": "public, max-age=60"}
+                )
             except Exception as e:
                 raise HTTPException(status_code=500, detail=str(e))
 
@@ -87,19 +133,12 @@ class PlaygroundServer:
         async def get_template(template_id: str):
             """Get a specific template with all its details."""
             try:
-                template = self.vault.get(template_id)
-                spec = template.spec
-                return TemplateResponse(
-                    id=spec.id,
-                    version=spec.version,
-                    description=spec.description,
-                    template=spec.template,
-                    inputs={name: {
-                        "type": input_spec.type,
-                        "required": input_spec.required,
-                        "default": input_spec.default
-                    } for name, input_spec in spec.inputs.items()},
-                    metadata=spec.metadata
+                cache_key = self._get_vault_hash()
+                template_response = self._get_template_cached(template_id, cache_key)
+                return Response(
+                    content=template_response.model_dump_json(),
+                    media_type="application/json",
+                    headers={"Cache-Control": "public, max-age=300"}
                 )
             except TemplateNotFound:
                 raise HTTPException(status_code=404, detail=f"Template '{template_id}' not found")
@@ -110,18 +149,15 @@ class PlaygroundServer:
         async def create_template(request: CreateTemplateRequest):
             """Create a new template and save it to the filesystem."""
             try:
-                # Validate request
                 if not request.id or request.id.strip() == "":
                     raise HTTPException(status_code=422, detail="Template ID cannot be empty")
 
-                # Check if template already exists
                 try:
                     self.vault.get(request.id)
                     raise HTTPException(status_code=400, detail=f"Template '{request.id}' already exists")
                 except TemplateNotFound:
-                    pass  # Template doesn't exist, which is what we want
+                    pass
 
-                # Convert input specs from dict format to InputSpec objects
                 inputs_dict = {}
                 for input_name, input_data in request.inputs.items():
                     inputs_dict[input_name] = InputSpec(
@@ -130,7 +166,6 @@ class PlaygroundServer:
                         default=input_data.get("default")
                     )
 
-                # Create TemplateSpec object and validate it
                 spec = TemplateSpec(
                     id=request.id,
                     version=request.version,
@@ -140,12 +175,10 @@ class PlaygroundServer:
                     metadata=request.metadata
                 )
 
-                # Save template to YAML file
                 prompt_dir = Path(self.vault.config["prompt_dir"])
                 filename = f"{spec.id}.yaml"
                 file_path = prompt_dir / filename
 
-                # Create the YAML content
                 yaml_content = {
                     "id": spec.id,
                     "version": spec.version,
@@ -162,14 +195,11 @@ class PlaygroundServer:
                     "metadata": spec.metadata
                 }
 
-                # Write to file
                 with open(file_path, 'w', encoding='utf-8') as f:
                     yaml.dump(yaml_content, f, default_flow_style=False, sort_keys=False)
 
-                # Invalidate cache to pick up the new template
-                self.vault.invalidate_cache()
+                self._invalidate_cache()
 
-                # Return the created template
                 return TemplateResponse(
                     id=spec.id,
                     version=spec.version,
@@ -184,7 +214,7 @@ class PlaygroundServer:
                 )
 
             except HTTPException:
-                raise  # Re-raise HTTP exceptions as-is
+                raise
             except ValidationError as e:
                 raise HTTPException(status_code=400, detail=f"Validation error: {str(e)}")
             except Exception as e:
@@ -194,22 +224,18 @@ class PlaygroundServer:
         async def update_template(template_id: str, request: UpdateTemplateRequest):
             """Update an existing template and save it to the filesystem."""
             try:
-                # Check if template exists
                 try:
                     current_template = self.vault.get(template_id)
                     current_spec = current_template.spec
                 except TemplateNotFound:
                     raise HTTPException(status_code=404, detail=f"Template '{template_id}' not found")
 
-                # Merge update request with current template data
                 updated_version = request.version if request.version is not None else current_spec.version
                 updated_description = request.description if request.description is not None else current_spec.description
                 updated_template = request.template if request.template is not None else current_spec.template
 
-                # Handle inputs merge
                 updated_inputs_dict = {}
                 if request.inputs is not None:
-                    # Convert new input specs from dict format to InputSpec objects
                     for input_name, input_data in request.inputs.items():
                         updated_inputs_dict[input_name] = InputSpec(
                             type=input_data.get("type", "string"),
@@ -217,15 +243,12 @@ class PlaygroundServer:
                             default=input_data.get("default")
                         )
                 else:
-                    # Keep existing inputs
                     updated_inputs_dict = current_spec.inputs
 
-                # Handle metadata merge
                 updated_metadata = request.metadata if request.metadata is not None else current_spec.metadata
 
-                # Create updated TemplateSpec object and validate it
                 updated_spec = TemplateSpec(
-                    id=current_spec.id,  # ID cannot be changed
+                    id=current_spec.id,
                     version=updated_version,
                     description=updated_description,
                     template=updated_template,
@@ -233,12 +256,10 @@ class PlaygroundServer:
                     metadata=updated_metadata
                 )
 
-                # Save updated template to YAML file
                 prompt_dir = Path(self.vault.config["prompt_dir"])
                 filename = f"{updated_spec.id}.yaml"
                 file_path = prompt_dir / filename
 
-                # Create the YAML content
                 yaml_content = {
                     "id": updated_spec.id,
                     "version": updated_spec.version,
@@ -255,14 +276,11 @@ class PlaygroundServer:
                     "metadata": updated_spec.metadata
                 }
 
-                # Write to file
                 with open(file_path, 'w', encoding='utf-8') as f:
                     yaml.dump(yaml_content, f, default_flow_style=False, sort_keys=False)
 
-                # Invalidate cache to pick up the updated template
-                self.vault.invalidate_cache()
+                self._invalidate_cache()
 
-                # Return the updated template
                 return TemplateResponse(
                     id=updated_spec.id,
                     version=updated_spec.version,
@@ -277,7 +295,7 @@ class PlaygroundServer:
                 )
 
             except HTTPException:
-                raise  # Re-raise HTTP exceptions as-is
+                raise
             except ValidationError as e:
                 raise HTTPException(status_code=400, detail=f"Validation error: {str(e)}")
             except Exception as e:
@@ -290,7 +308,6 @@ class PlaygroundServer:
                 template = self.vault.get(template_id)
                 rendered = template.render(**request.inputs)
 
-                # Get the actual inputs used (after validation and defaults)
                 inputs_used = template.spec.coerce_inputs(request.inputs)
 
                 return RenderResponse(
@@ -310,7 +327,7 @@ class PlaygroundServer:
         async def get_example_templates():
             """Get example templates for the playground showcase."""
             examples = self._get_example_templates()
-            return [
+            response_data = [
                 TemplateResponse(
                     id=spec.id,
                     version=spec.version,
@@ -325,31 +342,68 @@ class PlaygroundServer:
                 )
                 for spec in examples
             ]
+            return Response(
+                content=json.dumps([r.model_dump() for r in response_data]),
+                media_type="application/json",
+                headers={"Cache-Control": "public, max-age=3600"}
+            )
 
         @app.get("/api/health")
         async def health_check():
             """Health check endpoint."""
             try:
-                template_count = len(list(self.vault.list()))
-                return {
-                    "status": "healthy",
-                    "templates_loaded": template_count,
-                    "vault_config": {
-                        "prompt_dir": self.vault.config.get("prompt_dir"),
-                        "logging_enabled": self.vault.config.get("logging", {}).get("enabled", False)
-                    }
-                }
+                cache_key = self._get_vault_hash()
+                templates = self._get_template_list_cached(cache_key)
+                template_count = len(templates)
+                return Response(
+                    content=json.dumps({
+                        "status": "healthy",
+                        "templates_loaded": template_count,
+                        "vault_config": {
+                            "prompt_dir": self.vault.config.get("prompt_dir"),
+                            "logging_enabled": self.vault.config.get("logging", {}).get("enabled", False)
+                        }
+                    }),
+                    media_type="application/json",
+                    headers={"Cache-Control": "no-cache"}
+                )
             except Exception as e:
                 raise HTTPException(status_code=503, detail=f"Unhealthy: {str(e)}")
 
-        # Check for built React app and serve it
         playground_dir = Path(__file__).parent.parent / "playground"
 
         if (playground_dir / "index.html").exists():
-            # Serve built React app
+            @app.get("/static/{file_path:path}")
+            async def serve_static(file_path: str):
+                """Serve static files with caching headers."""
+                static_file_path = playground_dir / file_path
+                if static_file_path.exists() and static_file_path.is_file():
+                    content = static_file_path.read_bytes()
+
+                    etag = hashlib.md5(content).hexdigest()
+
+                    content_type = "application/octet-stream"
+                    if file_path.endswith('.js'):
+                        content_type = "application/javascript"
+                    elif file_path.endswith('.css'):
+                        content_type = "text/css"
+                    elif file_path.endswith('.html'):
+                        content_type = "text/html"
+                    elif file_path.endswith('.json'):
+                        content_type = "application/json"
+
+                    return Response(
+                        content=content,
+                        media_type=content_type,
+                        headers={
+                            "Cache-Control": "public, max-age=31536000, immutable",
+                            "ETag": etag
+                        }
+                    )
+                raise HTTPException(status_code=404)
+
             app.mount("/", StaticFiles(directory=str(playground_dir), html=True), name="playground")
         else:
-            # Fallback to simple HTML page
             @app.get("/", response_class=HTMLResponse)
             async def playground_ui():
                 """Serve fallback UI when React app is not built."""
@@ -357,7 +411,7 @@ class PlaygroundServer:
                 <!DOCTYPE html>
                 <html>
                 <head>
-                    <title>Dakora Playground</title>
+                    <title>PromptLightning Playground</title>
                     <meta charset="utf-8">
                     <meta name="viewport" content="width=device-width, initial-scale=1">
                     <style>
@@ -376,7 +430,7 @@ class PlaygroundServer:
                 <body>
                     <div class="container">
                         <div class="header">
-                            <h1>🎯 Dakora Playground</h1>
+                            <h1>🎯 PromptLightning Playground</h1>
                             <p>Interactive playground for prompt template development</p>
                         </div>
                         <div class="content">
@@ -543,7 +597,7 @@ Focus on providing value and actionable insights.""",
 
     def run(self, debug: bool = False):
         """Start the playground server."""
-        print(f"🎯 Starting Dakora Playground at http://{self.host}:{self.port}")
+        print(f"🎯 Starting PromptLightning Playground at http://{self.host}:{self.port}")
         print(f"📁 Prompt directory: {self.vault.config.get('prompt_dir', 'N/A')}")
         print(f"📊 Logging: {'enabled' if self.vault.logger else 'disabled'}")
         print("")
@@ -553,7 +607,8 @@ Focus on providing value and actionable insights.""",
             host=self.host,
             port=self.port,
             reload=debug,
-            log_level="info" if debug else "warning"
+            log_level="info" if debug else "warning",
+            workers=1
         )
 
 
@@ -563,14 +618,24 @@ class DemoPlaygroundServer(PlaygroundServer):
         self.port = port
         self.sessions: Dict[str, Vault] = {}
         self.session_dirs: Dict[str, Path] = {}
+        self._session_cache_versions: Dict[str, int] = {}
         self.app = self._create_demo_app()
 
+    def _get_session_cache_key(self, session_id: str) -> str:
+        """Generate cache key for session-specific caching."""
+        version = self._session_cache_versions.get(session_id, 0)
+        return f"{session_id}_{version}"
+
+    def _invalidate_session_cache(self, session_id: str):
+        """Invalidate cache for a specific session."""
+        self._session_cache_versions[session_id] = self._session_cache_versions.get(session_id, 0) + 1
+
     def _create_session_vault(self, session_id: str) -> Vault:
-        session_dir = Path(tempfile.gettempdir()) / "dakora-demo" / session_id
+        session_dir = Path(tempfile.gettempdir()) / "promptlightning-demo" / session_id
         prompt_dir = session_dir / "prompts"
         prompt_dir.mkdir(parents=True, exist_ok=True)
 
-        config_file = session_dir / "dakora.yaml"
+        config_file = session_dir / "promptlightning.yaml"
         config = {
             "registry": "local",
             "prompt_dir": str(prompt_dir),
@@ -602,6 +667,7 @@ class DemoPlaygroundServer(PlaygroundServer):
         vault.invalidate_cache()
         self.sessions[session_id] = vault
         self.session_dirs[session_id] = session_dir
+        self._session_cache_versions[session_id] = 0
         return vault
 
     def _get_or_create_session(self, session_id: Optional[str]) -> tuple[str, Vault]:
@@ -614,7 +680,7 @@ class DemoPlaygroundServer(PlaygroundServer):
 
     def _create_demo_app(self) -> FastAPI:
         app = FastAPI(
-            title="Dakora Playground - Demo Mode",
+            title="PromptLightning Playground - Demo Mode",
             description="Interactive playground with session isolation",
             version="0.1.0"
         )
@@ -627,20 +693,27 @@ class DemoPlaygroundServer(PlaygroundServer):
             allow_headers=["*"],
         )
 
+        app.add_middleware(GZipMiddleware, minimum_size=1000)
+
         @app.middleware("http")
         async def session_middleware(request: Request, call_next):
-            session_id = request.cookies.get("dakora_session_id")
+            session_id = request.cookies.get("promptlightning_session_id")
             session_id, vault = self._get_or_create_session(session_id)
             request.state.session_id = session_id
             request.state.vault = vault
             response = await call_next(request)
-            response.set_cookie("dakora_session_id", session_id, httponly=True, max_age=3600)
+            response.set_cookie("promptlightning_session_id", session_id, httponly=True, max_age=3600)
             return response
 
         @app.get("/api/templates", response_model=List[str])
         async def list_templates(request: Request):
             try:
-                return list(request.state.vault.list())
+                templates = list(request.state.vault.list())
+                return Response(
+                    content=json.dumps(templates),
+                    media_type="application/json",
+                    headers={"Cache-Control": "public, max-age=60"}
+                )
             except Exception as e:
                 raise HTTPException(status_code=500, detail=str(e))
 
@@ -649,7 +722,7 @@ class DemoPlaygroundServer(PlaygroundServer):
             try:
                 template = request.state.vault.get(template_id)
                 spec = template.spec
-                return TemplateResponse(
+                response_data = TemplateResponse(
                     id=spec.id,
                     version=spec.version,
                     description=spec.description,
@@ -660,6 +733,11 @@ class DemoPlaygroundServer(PlaygroundServer):
                         "default": input_spec.default
                     } for name, input_spec in spec.inputs.items()},
                     metadata=spec.metadata
+                )
+                return Response(
+                    content=response_data.model_dump_json(),
+                    media_type="application/json",
+                    headers={"Cache-Control": "public, max-age=300"}
                 )
             except TemplateNotFound:
                 raise HTTPException(status_code=404, detail=f"Template '{template_id}' not found")
@@ -716,6 +794,7 @@ class DemoPlaygroundServer(PlaygroundServer):
 
                 file_path.write_text(yaml.safe_dump(yaml_content, sort_keys=False))
                 request.state.vault.invalidate_cache()
+                self._invalidate_session_cache(request.state.session_id)
 
                 return TemplateResponse(
                     id=spec.id,
@@ -793,6 +872,7 @@ class DemoPlaygroundServer(PlaygroundServer):
 
                 file_path.write_text(yaml.safe_dump(yaml_content, sort_keys=False))
                 request.state.vault.invalidate_cache()
+                self._invalidate_session_cache(request.state.session_id)
 
                 return TemplateResponse(
                     id=updated_spec.id,
@@ -837,7 +917,7 @@ class DemoPlaygroundServer(PlaygroundServer):
         @app.get("/api/examples", response_model=List[TemplateResponse])
         async def get_example_templates():
             examples = self._get_example_templates()
-            return [
+            response_data = [
                 TemplateResponse(
                     id=spec.id,
                     version=spec.version,
@@ -852,23 +932,61 @@ class DemoPlaygroundServer(PlaygroundServer):
                 )
                 for spec in examples
             ]
+            return Response(
+                content=json.dumps([r.model_dump() for r in response_data]),
+                media_type="application/json",
+                headers={"Cache-Control": "public, max-age=3600"}
+            )
 
         @app.get("/api/health")
         async def health_check(request: Request):
             try:
                 template_count = len(list(request.state.vault.list()))
-                return {
-                    "status": "healthy",
-                    "demo_mode": True,
-                    "session_id": request.state.session_id,
-                    "templates_loaded": template_count,
-                }
+                return Response(
+                    content=json.dumps({
+                        "status": "healthy",
+                        "demo_mode": True,
+                        "session_id": request.state.session_id,
+                        "templates_loaded": template_count,
+                    }),
+                    media_type="application/json",
+                    headers={"Cache-Control": "no-cache"}
+                )
             except Exception as e:
                 raise HTTPException(status_code=503, detail=f"Unhealthy: {str(e)}")
 
         playground_dir = Path(__file__).parent.parent / "playground"
 
         if (playground_dir / "index.html").exists():
+            @app.get("/static/{file_path:path}")
+            async def serve_static(file_path: str):
+                """Serve static files with caching headers."""
+                static_file_path = playground_dir / file_path
+                if static_file_path.exists() and static_file_path.is_file():
+                    content = static_file_path.read_bytes()
+
+                    etag = hashlib.md5(content).hexdigest()
+
+                    content_type = "application/octet-stream"
+                    if file_path.endswith('.js'):
+                        content_type = "application/javascript"
+                    elif file_path.endswith('.css'):
+                        content_type = "text/css"
+                    elif file_path.endswith('.html'):
+                        content_type = "text/html"
+                    elif file_path.endswith('.json'):
+                        content_type = "application/json"
+
+                    return Response(
+                        content=content,
+                        media_type=content_type,
+                        headers={
+                            "Cache-Control": "public, max-age=31536000, immutable",
+                            "ETag": etag
+                        }
+                    )
+                raise HTTPException(status_code=404)
+
             app.mount("/", StaticFiles(directory=str(playground_dir), html=True), name="playground")
         else:
             @app.get("/", response_class=HTMLResponse)
@@ -877,7 +995,7 @@ class DemoPlaygroundServer(PlaygroundServer):
                 <!DOCTYPE html>
                 <html>
                 <head>
-                    <title>Dakora Playground - Demo Mode</title>
+                    <title>PromptLightning Playground - Demo Mode</title>
                     <meta charset="utf-8">
                     <meta name="viewport" content="width=device-width, initial-scale=1">
                     <style>
@@ -896,7 +1014,7 @@ class DemoPlaygroundServer(PlaygroundServer):
                 <body>
                     <div class="container">
                         <div class="header">
-                            <h1>Dakora Playground <span class="demo-badge">DEMO MODE</span></h1>
+                            <h1>PromptLightning Playground <span class="demo-badge">DEMO MODE</span></h1>
                             <p>Interactive playground with session isolation - your data is private!</p>
                         </div>
                         <div class="content">
@@ -925,9 +1043,9 @@ class DemoPlaygroundServer(PlaygroundServer):
 
     def run(self, debug: bool = False):
         """Start the playground server in demo mode."""
-        print(f"🎯 Starting Dakora Playground (Demo Mode) at http://{self.host}:{self.port}")
+        print(f"🎯 Starting PromptLightning Playground (Demo Mode) at http://{self.host}:{self.port}")
         print(f"🎮 Session isolation enabled - each user gets a private workspace")
-        print(f"📁 Temporary sessions stored in /tmp/dakora-demo/")
+        print(f"📁 Temporary sessions stored in /tmp/promptlightning-demo/")
         print("")
 
         uvicorn.run(
@@ -935,7 +1053,8 @@ class DemoPlaygroundServer(PlaygroundServer):
             host=self.host,
             port=self.port,
             reload=debug,
-            log_level="info" if debug else "warning"
+            log_level="info" if debug else "warning",
+            workers=1
         )
 
 

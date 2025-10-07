@@ -5,6 +5,64 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.0] - 2025-10-06
+
+### BREAKING CHANGES
+
+**Package renamed from `dakora` to `promptlightning`**
+
+This major version includes a complete rebrand of the project. All references to "Dakora" have been replaced with "PromptLightning" throughout the codebase, documentation, and examples.
+
+#### Migration Guide
+
+1. **Update package installation:**
+   ```bash
+   pip uninstall dakora
+   pip install promptlightning
+   ```
+
+2. **Update imports in your code:**
+   ```python
+   # Before
+   from dakora import Vault
+
+   # After
+   from promptlightning import Vault
+   ```
+
+3. **Rename configuration files:**
+   ```bash
+   mv dakora.yaml promptlightning.yaml
+   ```
+
+4. **Update CLI commands:**
+   ```bash
+   # Before
+   dakora init
+   dakora playground
+
+   # After
+   promptlightning init
+   promptlightning playground
+   ```
+
+5. **Update database paths (if using logging):**
+   Configuration file should reference `promptlightning.db` instead of `dakora.db`
+
+### Changed
+- Package name: `dakora` → `promptlightning`
+- Python module: `dakora` → `promptlightning`
+- CLI command: `dakora` → `promptlightning`
+- Config file: `dakora.yaml` → `promptlightning.yaml`
+- Default database: `dakora.db` → `promptlightning.db`
+- Documentation URLs updated to reflect new branding
+- All examples updated with new package name
+
+### Notes
+- Functionality remains identical to v1.0.2
+- No API changes beyond naming
+- All features, templates, and workflows work exactly the same way
+
 ## [1.0.2] - 2025-09-30
 
 ### Fixed

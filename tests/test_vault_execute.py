@@ -5,9 +5,9 @@ import yaml
 import pytest
 import sqlite3
 
-from dakora.vault import Vault, TemplateHandle
-from dakora.llm.models import ExecutionResult
-from dakora.exceptions import ValidationError, RenderError, APIKeyError, RateLimitError, ModelNotFoundError, LLMError
+from promptlightning.vault import Vault, TemplateHandle
+from promptlightning.llm.models import ExecutionResult
+from promptlightning.exceptions import ValidationError, RenderError, APIKeyError, RateLimitError, ModelNotFoundError, LLMError
 
 
 @pytest.fixture
@@ -38,11 +38,11 @@ def temp_vault_with_logging():
             "logging": {
                 "enabled": True,
                 "backend": "sqlite",
-                "db_path": str(Path(tmpdir) / "dakora.db")
+                "db_path": str(Path(tmpdir) / "promptlightning.db")
             }
         }
 
-        config_path = Path(tmpdir) / "dakora.yaml"
+        config_path = Path(tmpdir) / "promptlightning.yaml"
         config_path.write_text(yaml.safe_dump(config))
 
         vault = Vault(str(config_path))
@@ -94,7 +94,7 @@ class TestTemplateHandleExecute:
         template = vault.get("test-template")
 
         with patch.object(template, '_llm_client', None):
-            with patch('dakora.vault.LLMClient') as mock_client_class:
+            with patch('promptlightning.vault.LLMClient') as mock_client_class:
                 mock_client = Mock()
                 mock_client.execute.return_value = mock_execution_result
                 mock_client_class.return_value = mock_client
@@ -120,7 +120,7 @@ class TestTemplateHandleExecute:
         template = vault.get("test-template")
 
         with patch.object(template, '_llm_client', None):
-            with patch('dakora.vault.LLMClient') as mock_client_class:
+            with patch('promptlightning.vault.LLMClient') as mock_client_class:
                 mock_client = Mock()
                 mock_client.execute.return_value = mock_execution_result
                 mock_client_class.return_value = mock_client
@@ -145,7 +145,7 @@ class TestTemplateHandleExecute:
         template = vault.get("test-template")
 
         with patch.object(template, '_llm_client', None):
-            with patch('dakora.vault.LLMClient') as mock_client_class:
+            with patch('promptlightning.vault.LLMClient') as mock_client_class:
                 mock_client = Mock()
                 mock_client.execute.return_value = mock_execution_result
                 mock_client_class.return_value = mock_client
@@ -154,7 +154,7 @@ class TestTemplateHandleExecute:
 
                 assert result == mock_execution_result
 
-                db_path = Path(tmpdir) / "dakora.db"
+                db_path = Path(tmpdir) / "promptlightning.db"
                 assert db_path.exists()
 
                 with sqlite3.connect(db_path) as con:
@@ -183,7 +183,7 @@ class TestTemplateHandleExecute:
         template = vault.get("test-template")
 
         with patch.object(template, '_llm_client', None):
-            with patch('dakora.vault.LLMClient') as mock_client_class:
+            with patch('promptlightning.vault.LLMClient') as mock_client_class:
                 mock_client = Mock()
                 mock_client.execute.side_effect = APIKeyError("Invalid API key")
                 mock_client_class.return_value = mock_client
@@ -198,7 +198,7 @@ class TestTemplateHandleExecute:
         template = vault.get("test-template")
 
         with patch.object(template, '_llm_client', None):
-            with patch('dakora.vault.LLMClient') as mock_client_class:
+            with patch('promptlightning.vault.LLMClient') as mock_client_class:
                 mock_client = Mock()
                 mock_client.execute.side_effect = RateLimitError("Rate limit exceeded")
                 mock_client_class.return_value = mock_client
@@ -213,7 +213,7 @@ class TestTemplateHandleExecute:
         template = vault.get("test-template")
 
         with patch.object(template, '_llm_client', None):
-            with patch('dakora.vault.LLMClient') as mock_client_class:
+            with patch('promptlightning.vault.LLMClient') as mock_client_class:
                 mock_client = Mock()
                 mock_client.execute.side_effect = ModelNotFoundError("Model not found")
                 mock_client_class.return_value = mock_client
@@ -228,7 +228,7 @@ class TestTemplateHandleExecute:
         template = vault.get("test-template")
 
         with patch.object(template, '_llm_client', None):
-            with patch('dakora.vault.LLMClient') as mock_client_class:
+            with patch('promptlightning.vault.LLMClient') as mock_client_class:
                 mock_client = Mock()
                 mock_client.execute.side_effect = LLMError("Unexpected error")
                 mock_client_class.return_value = mock_client
@@ -243,7 +243,7 @@ class TestTemplateHandleExecute:
         template = vault.get("test-template")
 
         with patch.object(template, '_llm_client', None):
-            with patch('dakora.vault.LLMClient') as mock_client_class:
+            with patch('promptlightning.vault.LLMClient') as mock_client_class:
                 mock_client = Mock()
                 mock_client.execute.return_value = mock_execution_result
                 mock_client_class.return_value = mock_client
@@ -286,7 +286,7 @@ class TestTemplateHandleExecute:
         )
 
         with patch.object(template, '_llm_client', None):
-            with patch('dakora.vault.LLMClient') as mock_client_class:
+            with patch('promptlightning.vault.LLMClient') as mock_client_class:
                 mock_client = Mock()
                 mock_client.execute.return_value = mock_result
                 mock_client_class.return_value = mock_client
@@ -307,7 +307,7 @@ class TestTemplateHandleExecute:
         template = vault.get("test-template")
 
         with patch.object(template, '_llm_client', None):
-            with patch('dakora.vault.LLMClient') as mock_client_class:
+            with patch('promptlightning.vault.LLMClient') as mock_client_class:
                 mock_client = Mock()
                 mock_client.execute.return_value = mock_execution_result
                 mock_client_class.return_value = mock_client
@@ -346,7 +346,7 @@ class TestDatabaseMigration:
                     );
                 """)
 
-            from dakora.logging import Logger
+            from promptlightning.logging import Logger
             logger = Logger(db_path)
 
             with sqlite3.connect(db_path) as con:
@@ -363,7 +363,7 @@ class TestDatabaseMigration:
         with tempfile.TemporaryDirectory() as tmpdir:
             db_path = Path(tmpdir) / "test.db"
 
-            from dakora.logging import Logger
+            from promptlightning.logging import Logger
             logger = Logger(db_path)
 
             logger.write(

@@ -94,8 +94,8 @@ jobs:
         /tmp/test-env/bin/pip install dist/*.whl
 
         # Start playground in background
-        /tmp/test-env/bin/dakora init
-        /tmp/test-env/bin/dakora playground --no-browser --port 3333 &
+        /tmp/test-env/bin/promptlightning init
+        /tmp/test-env/bin/promptlightning playground --no-browser --port 3333 &
         PLAYGROUND_PID=$!
 
         # Wait for server to start
@@ -119,7 +119,7 @@ jobs:
         curl -f http://localhost:3333/api/templates || exit 1
 
         # Check if UI is served (should have index.html)
-        curl -s http://localhost:3333/ | grep -q "Dakora Playground" || exit 1
+        curl -s http://localhost:3333/ | grep -q "PromptLightning Playground" || exit 1
 
         # Cleanup
         kill $PLAYGROUND_PID

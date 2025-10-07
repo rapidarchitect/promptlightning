@@ -47,7 +47,7 @@ from typing import Optional
 
 from agent_framework.azure import AzureOpenAIChatClient
 from azure.identity import AzureCliCredential
-from dakora import Vault
+from promptlightning import Vault
 
 # Constants
 SCRIPT_DIR = Path(__file__).parent

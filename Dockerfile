@@ -19,7 +19,7 @@ RUN cd web && \
 
 # Now copy Python source (build output is already in playground/)
 COPY pyproject.toml README.md ./
-COPY dakora ./dakora
+COPY promptlightning ./promptlightning
 
 # Install Python dependencies and clean up
 RUN pip install --no-cache-dir . && \
@@ -30,4 +30,4 @@ EXPOSE 8000
 
 ENV PORT=8000
 
-CMD dakora playground --demo --host 0.0.0.0 --port ${PORT} --no-build --no-browser
+CMD promptlightning playground --demo --host 0.0.0.0 --port ${PORT} --no-build --no-browser

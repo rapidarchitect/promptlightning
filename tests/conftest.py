@@ -1,5 +1,5 @@
 """
-Test configuration and fixtures for Dakora tests
+Test configuration and fixtures for PromptLightning tests
 """
 import tempfile
 import shutil
@@ -12,13 +12,13 @@ import time
 import requests
 from contextlib import contextmanager
 
-from dakora.playground import create_playground
-from dakora.vault import Vault
+from promptlightning.playground import create_playground
+from promptlightning.vault import Vault
 
 
 @pytest.fixture
 def temp_project_dir():
-    """Create a temporary directory with a Dakora project setup"""
+    """Create a temporary directory with a PromptLightning project setup"""
     with tempfile.TemporaryDirectory() as tmpdir:
         # Create config file
         config = {
@@ -27,11 +27,11 @@ def temp_project_dir():
             "logging": {
                 "enabled": False,  # Disable logging for tests
                 "backend": "sqlite",
-                "db_path": "./dakora.db"
+                "db_path": "./promptlightning.db"
             }
         }
 
-        config_path = Path(tmpdir) / "dakora.yaml"
+        config_path = Path(tmpdir) / "promptlightning.yaml"
         config_path.write_text(yaml.safe_dump(config))
 
         # Create prompts directory
@@ -76,7 +76,7 @@ def temp_project_dir():
                     "message": {
                         "type": "string",
                         "required": False,
-                        "default": "Welcome to Dakora!"
+                        "default": "Welcome to PromptLightning!"
                     }
                 },
                 "metadata": {

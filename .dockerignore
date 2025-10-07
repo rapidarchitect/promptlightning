@@ -11,7 +11,7 @@ dist
 build
 node_modules
 .DS_Store
-dakora.db
+promptlightning.db
 prompts/
 web/node_modules
 web/dist

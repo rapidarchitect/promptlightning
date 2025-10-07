@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Quick smoke test for Dakora functionality
+Quick smoke test for PromptLightning functionality
 """
 import tempfile
 import shutil
@@ -9,11 +9,11 @@ import yaml
 import sys
 import os
 
-# Add parent directory to path to import dakora
+# Add parent directory to path to import promptlightning
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from dakora.vault import Vault
-from dakora.cli import app
+from promptlightning.vault import Vault
+from promptlightning.cli import app
 import typer.testing
 
 def test_vault_operations():
@@ -79,7 +79,7 @@ def test_cli_operations():
             # Test init command
             result = runner.invoke(app, ["init"])
             assert result.exit_code == 0, f"Init failed: {result.stdout}"
-            assert Path("dakora.yaml").exists(), "Config file not created"
+            assert Path("promptlightning.yaml").exists(), "Config file not created"
             assert Path("prompts/summarizer.yaml").exists(), "Example template not created"
             print("✅ CLI init works")
 
@@ -144,14 +144,14 @@ def test_error_handling():
 
 def main():
     """Run all smoke tests"""
-    print("🚀 Running Dakora smoke tests...\n")
+    print("🚀 Running PromptLightning smoke tests...\n")
 
     try:
         test_vault_operations()
         test_cli_operations()
         test_error_handling()
 
-        print("\n🎉 All smoke tests passed! Dakora is working correctly.")
+        print("\n🎉 All smoke tests passed! PromptLightning is working correctly.")
         return 0
 
     except Exception as e:

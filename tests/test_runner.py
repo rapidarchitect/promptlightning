@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Test runner for Dakora with different test categories
+Test runner for PromptLightning with different test categories
 """
 import sys
 import subprocess
@@ -77,7 +77,7 @@ def run_tests(test_type="all", verbose=False, fast=False):
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Run Dakora tests")
+    parser = argparse.ArgumentParser(description="Run PromptLightning tests")
     parser.add_argument(
         "test_type",
         nargs="?",
@@ -98,7 +98,7 @@ def main():
 
     args = parser.parse_args()
 
-    print("🧪 Dakora Test Runner")
+    print("🧪 PromptLightning Test Runner")
     print(f"Test type: {args.test_type}")
     if args.fast:
         print("Fast mode: skipping slow tests")

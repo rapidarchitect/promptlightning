@@ -1,10 +1,10 @@
 """
-Unit tests for Dakora Playground Server
+Unit tests for PromptLightning Playground Server
 """
 import pytest
 from fastapi.testclient import TestClient
-from dakora.playground import PlaygroundServer, create_playground
-from dakora.vault import Vault
+from promptlightning.playground import PlaygroundServer, create_playground
+from promptlightning.vault import Vault
 
 
 class TestPlaygroundServer:
@@ -163,7 +163,7 @@ class TestPlaygroundServerWithTestClient:
             response = client.get("/")
             assert response.status_code == 200
             assert "text/html" in response.headers["content-type"]
-            assert "Dakora Playground" in response.text
+            assert "PromptLightning Playground" in response.text
 
     def test_404_for_nonexistent_template(self, test_vault):
         """Test 404 response for non-existent template"""
@@ -224,7 +224,7 @@ class TestPlaygroundServerEdgeCases:
                 "logging": {"enabled": False}
             }
 
-            config_path = Path(tmpdir) / "dakora.yaml"
+            config_path = Path(tmpdir) / "promptlightning.yaml"
             config_path.write_text(yaml.safe_dump(config))
 
             # Create empty prompts directory

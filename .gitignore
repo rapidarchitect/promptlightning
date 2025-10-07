@@ -29,17 +29,19 @@ Thumbs.db
 
 # Claude Code related files
 .claude/
+.serena/
+CLAUDE.md
 
-# Dakora user-generated files (from init command)
-dakora.yaml
-dakora.db
+# PromptLightning user-generated files (from init command)
+promptlightning.yaml
+promptlightning.db
 *.db
 *.sqlite
 *.sqlite3
 
 # User prompt directories (but keep example prompts in repo)
 # Note: The default prompts/ folder contains examples and should be tracked
-# Users can override prompt_dir in dakora.yaml to use different folders
+# Users can override prompt_dir in promptlightning.yaml to use different folders
 
 # Development and testing files
 *.log

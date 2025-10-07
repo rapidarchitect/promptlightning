@@ -13,9 +13,9 @@ __pycache__/
 *$py.class
 *.so
 
-# Dakora
-dakora.yaml
-dakora.db
+# PromptLightning
+promptlightning.yaml
+promptlightning.db
 prompts/
 
 # IDE

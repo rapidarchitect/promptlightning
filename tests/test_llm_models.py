@@ -1,6 +1,6 @@
 import pytest
 from pydantic import ValidationError
-from dakora.llm.models import ExecutionResult
+from promptlightning.llm.models import ExecutionResult
 
 def test_execution_result_valid():
     result = ExecutionResult(

@@ -5,7 +5,8 @@ from dotenv import load_dotenv
 from .vault import Vault
 from .watcher import Watcher
 from .playground import create_playground
-from .exceptions import ValidationError, RenderError, TemplateNotFound, APIKeyError, RateLimitError, ModelNotFoundError, LLMError
+from .exceptions import ValidationError, RenderError, TemplateNotFound, APIKeyError, RateLimitError, ModelNotFoundError, LLMError, RegistryError
+from .registry.migrate import migrate_local_to_lmdb, verify_migration
 
 app = typer.Typer(add_completion=False)
 
@@ -18,9 +19,9 @@ def init():
     cfg = {
         "registry": "local",
         "prompt_dir": "./prompts",
-        "logging": {"enabled": True, "backend": "sqlite", "db_path": "./dakora.db"},
+        "logging": {"enabled": True, "backend": "sqlite", "db_path": "./promptlightning.db"},
     }
-    (root / "dakora.yaml").write_text(yaml.safe_dump(cfg, sort_keys=False), encoding="utf-8")
+    (root / "promptlightning.yaml").write_text(yaml.safe_dump(cfg, sort_keys=False), encoding="utf-8")
     example = {
         "id": "summarizer",
         "version": "1.0.0",
@@ -29,17 +30,17 @@ def init():
         "inputs": {"input_text": {"type": "string", "required": True}},
     }
     (root / "prompts" / "summarizer.yaml").write_text(yaml.safe_dump(example, sort_keys=False, allow_unicode=True), encoding="utf-8")
-    typer.echo("Initialized Dakora project.")
+    typer.echo("Initialized PromptLightning project.")
 
 @app.command()
 def list():
-    v = Vault("dakora.yaml")
+    v = Vault("promptlightning.yaml")
     for tid in v.list():
         typer.echo(tid)
 
 @app.command()
 def get(id: str):
-    v = Vault("dakora.yaml")
+    v = Vault("promptlightning.yaml")
     tmpl = v.get(id)
     # print raw template without rendering
     sys.stdout.write(tmpl.spec.template)
@@ -47,7 +48,7 @@ def get(id: str):
 @app.command()
 def bump(id: str, patch: bool = False, minor: bool = False, major: bool = False):
     # naive semantic bump: finds the file containing id and rewrites version
-    prompt_dir = Path(yaml.safe_load(Path("dakora.yaml").read_text())["prompt_dir"])
+    prompt_dir = Path(yaml.safe_load(Path("promptlightning.yaml").read_text())["prompt_dir"])
     target = None
     for p in prompt_dir.rglob("*.y*ml"):
         data = yaml.safe_load(p.read_text()) or {}
@@ -67,8 +68,8 @@ def bump(id: str, patch: bool = False, minor: bool = False, major: bool = False)
 
 @app.command()
 def watch():
-    v = Vault("dakora.yaml")
-    pd = Path(yaml.safe_load(Path("dakora.yaml").read_text())["prompt_dir"]).resolve()
+    v = Vault("promptlightning.yaml")
+    pd = Path(yaml.safe_load(Path("promptlightning.yaml").read_text())["prompt_dir"]).resolve()
     typer.echo(f"Watching {pd} for changes. Ctrl+C to stop.")
     w = Watcher(pd, on_change=v.invalidate_cache)
     w.start()
@@ -77,6 +78,112 @@ def watch():
             time.sleep(1)
     except KeyboardInterrupt:
         w.stop()
+
+@app.command()
+def migrate(
+    source_type: str = typer.Option("yaml", help="Source registry type (yaml)"),
+    target_type: str = typer.Option("lmdb", help="Target registry type (lmdb)"),
+    config: str = typer.Option("promptlightning.yaml", help="Config file path"),
+    db_path: str = typer.Option("./templates.lmdb", help="LMDB database path"),
+    overwrite: bool = typer.Option(False, help="Overwrite existing LMDB database"),
+    verify: bool = typer.Option(True, help="Verify migration after completion"),
+    map_size: int = typer.Option(100 * 1024 * 1024, help="LMDB map size in bytes (default: 100MB)")
+):
+    """Migrate templates from YAML to LMDB for better performance.
+
+    This command migrates templates from the local YAML filesystem registry
+    to an LMDB database for significantly faster lookups (~1000x improvement).
+
+    Examples:
+        promptlightning migrate
+        promptlightning migrate --db-path ./my_templates.lmdb --overwrite
+        promptlightning migrate --verify=False --map-size 209715200
+    """
+    if source_type != "yaml":
+        typer.echo(f"❌ Unsupported source type: {source_type}. Only 'yaml' is currently supported.", err=True)
+        raise typer.Exit(1)
+
+    if target_type != "lmdb":
+        typer.echo(f"❌ Unsupported target type: {target_type}. Only 'lmdb' is currently supported.", err=True)
+        raise typer.Exit(1)
+
+    try:
+        config_path = Path(config)
+        if not config_path.exists():
+            typer.echo(f"❌ Config file not found: {config}", err=True)
+            typer.echo("💡 Run 'promptlightning init' to create a new project", err=True)
+            raise typer.Exit(1)
+
+        config_data = yaml.safe_load(config_path.read_text())
+        prompt_dir = Path(config_data.get("prompt_dir", "./prompts"))
+
+        if not prompt_dir.exists():
+            typer.echo(f"❌ Prompt directory not found: {prompt_dir}", err=True)
+            raise typer.Exit(1)
+
+        typer.echo("🔄 Migrating templates from YAML to LMDB...")
+        typer.echo(f"📂 Source: {prompt_dir.resolve()}")
+        typer.echo(f"💾 Target: {Path(db_path).resolve()}")
+        typer.echo("")
+
+        result = migrate_local_to_lmdb(
+            prompt_dir=prompt_dir,
+            db_path=db_path,
+            map_size=map_size,
+            overwrite=overwrite,
+            verbose=False
+        )
+
+        for template_id in result.get("failed_ids", []):
+            typer.echo(f"✗ Failed to migrate: {template_id}")
+
+        if result["failed"] > 0:
+            typer.echo("")
+
+        typer.echo(f"✓ Migration complete: {result['migrated']} templates migrated")
+
+        if result["failed"] > 0:
+            typer.echo(f"⚠️  {result['failed']} templates failed to migrate")
+
+        typer.echo("")
+
+        if verify and result["migrated"] > 0:
+            typer.echo("🔍 Verifying migration...")
+            verify_result = verify_migration(
+                prompt_dir=prompt_dir,
+                db_path=db_path,
+                verbose=False
+            )
+
+            if verify_result["success"]:
+                typer.echo(f"✓ Verification complete: All {verify_result['verified']} templates validated")
+            else:
+                typer.echo(f"⚠️  Verification found issues:")
+                if verify_result["mismatches"] > 0:
+                    typer.echo(f"   - {verify_result['mismatches']} mismatches")
+                if verify_result["missing_in_lmdb"]:
+                    typer.echo(f"   - {len(verify_result['missing_in_lmdb'])} missing in LMDB")
+                if verify_result["extra_in_lmdb"]:
+                    typer.echo(f"   - {len(verify_result['extra_in_lmdb'])} extra in LMDB")
+
+            typer.echo("")
+
+        typer.echo("📊 Performance improvement: ~1000x faster template lookups")
+        typer.echo(f"💾 Database location: {result['db_path']}")
+        typer.echo("")
+        typer.echo("💡 To use the LMDB registry, update your promptlightning.yaml:")
+        typer.echo(f"   registry: lmdb")
+        typer.echo(f"   lmdb_path: {db_path}")
+
+    except RegistryError as e:
+        typer.echo(f"❌ Migration error: {e}", err=True)
+        raise typer.Exit(1)
+    except FileNotFoundError as e:
+        typer.echo(f"❌ File not found: {e}", err=True)
+        raise typer.Exit(1)
+    except Exception as e:
+        typer.echo(f"❌ Unexpected error: {e}", err=True)
+        raise typer.Exit(1)
 
 def _build_ui():
     """Build the React UI for the playground."""
@@ -169,7 +276,7 @@ def _open_browser_delayed(url: str, delay: float = 2.0):
 def playground(
     port: int = typer.Option(3000, help="Port to run playground on"),
     host: str = typer.Option("localhost", help="Host to bind to"),
-    config: str = typer.Option("dakora.yaml", help="Config file path"),
+    config: str = typer.Option("promptlightning.yaml", help="Config file path"),
     prompt_dir: str = typer.Option(None, help="Prompt directory (overrides config)"),
     dev: bool = typer.Option(False, "--dev", help="Development mode with auto-reload"),
     no_build: bool = typer.Option(False, "--no-build", help="Skip building the UI"),
@@ -209,9 +316,9 @@ def playground(
         if dev:
             typer.echo("🚀 Starting playground in development mode...")
         elif demo:
-            typer.echo("🎮 Starting Dakora Playground in demo mode...")
+            typer.echo("🎮 Starting PromptLightning Playground in demo mode...")
         else:
-            typer.echo("🎯 Starting Dakora Playground...")
+            typer.echo("🎯 Starting PromptLightning Playground...")
 
         typer.echo("📍 Press Ctrl+C to stop the server")
         typer.echo("")
@@ -223,7 +330,7 @@ def playground(
             typer.echo(f"❌ Unexpected error in demo mode: {e}", err=True)
         else:
             typer.echo(f"❌ Config file not found: {e}", err=True)
-            typer.echo("💡 Run 'dakora init' to create a new project", err=True)
+            typer.echo("💡 Run 'promptlightning init' to create a new project", err=True)
         raise typer.Exit(1)
     except KeyboardInterrupt:
         typer.echo("\n👋 Stopping playground server...")
@@ -237,7 +344,7 @@ def run(
     ctx: typer.Context,
     template_id: str = typer.Argument(..., help="Template ID to execute"),
     model: str = typer.Option(..., "--model", "-m", help="LLM model to use (e.g., 'gpt-4', 'claude-3-opus')"),
-    config: str = typer.Option("dakora.yaml", help="Config file path"),
+    config: str = typer.Option("promptlightning.yaml", help="Config file path"),
     temperature: float = typer.Option(None, "--temperature", "-t", help="Sampling temperature (0.0-2.0)"),
     max_tokens: int = typer.Option(None, "--max-tokens", help="Maximum tokens to generate"),
     top_p: float = typer.Option(None, "--top-p", help="Nucleus sampling probability"),
@@ -250,15 +357,15 @@ def run(
     Any parameter not matching a template input will be passed to LiteLLM.
 
     Examples:
-      dakora run summarizer --model gpt-4 --input-text "Article content..."
-      dakora run summarizer --model gpt-5-nano --input-text "Text" --temperature 0.7
-      dakora run chatbot --model claude-3-opus --message "Hello" --max-tokens 100
+      promptlightning run summarizer --model gpt-4 --input-text "Article content..."
+      promptlightning run summarizer --model gpt-5-nano --input-text "Text" --temperature 0.7
+      promptlightning run chatbot --model claude-3-opus --message "Hello" --max-tokens 100
     """
     try:
         vault = Vault(config)
     except FileNotFoundError:
         typer.echo(f"❌ Config file not found: {config}", err=True)
-        typer.echo("💡 Run 'dakora init' to create a new project", err=True)
+        typer.echo("💡 Run 'promptlightning init' to create a new project", err=True)
         raise typer.Exit(1)
     except Exception as e:
         typer.echo(f"❌ Failed to load config: {e}", err=True)
@@ -268,7 +375,7 @@ def run(
         template = vault.get(template_id)
     except TemplateNotFound:
         typer.echo(f"❌ Template '{template_id}' not found", err=True)
-        typer.echo(f"💡 Run 'dakora list' to see available templates", err=True)
+        typer.echo(f"💡 Run 'promptlightning list' to see available templates", err=True)
         raise typer.Exit(1)
     except Exception as e:
         typer.echo(f"❌ Failed to load template: {e}", err=True)
@@ -312,7 +419,7 @@ def run(
     missing_inputs = required_inputs - set(template_kwargs.keys())
     if missing_inputs:
         typer.echo(f"❌ Missing required inputs: {', '.join(missing_inputs)}", err=True)
-        typer.echo(f"💡 Usage: dakora run {template_id} --model {model} " +
+        typer.echo(f"💡 Usage: promptlightning run {template_id} --model {model} " +
                   " ".join(f"--{inp} <value>" for inp in sorted(template_input_names)), err=True)
         raise typer.Exit(1)
 

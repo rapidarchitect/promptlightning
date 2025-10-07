@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Test that dakora init command works correctly
+Test that promptlightning init command works correctly
 """
 import tempfile
 import os
@@ -8,10 +8,10 @@ from pathlib import Path
 import yaml
 import sys
 
-# Add parent directory to path to import dakora
+# Add parent directory to path to import promptlightning
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from dakora.cli import app
+from promptlightning.cli import app
 import typer.testing
 
 def test_init_creates_proper_structure():
@@ -28,8 +28,8 @@ def test_init_creates_proper_structure():
             assert result.exit_code == 0, f"Init command failed: {result.stdout}"
 
             # Check that config file was created
-            config_path = Path("dakora.yaml")
-            assert config_path.exists(), "dakora.yaml was not created"
+            config_path = Path("promptlightning.yaml")
+            assert config_path.exists(), "promptlightning.yaml was not created"
 
             # Check config file contents
             config_data = yaml.safe_load(config_path.read_text())
@@ -38,7 +38,7 @@ def test_init_creates_proper_structure():
             assert "logging" in config_data, "Logging config missing"
             assert config_data["logging"]["enabled"] is True, "Logging not enabled by default"
             assert config_data["logging"]["backend"] == "sqlite", "Wrong logging backend"
-            assert config_data["logging"]["db_path"] == "./dakora.db", "Wrong db path"
+            assert config_data["logging"]["db_path"] == "./promptlightning.db", "Wrong db path"
 
             # Check that prompts directory was created
             prompts_dir = Path("prompts")
@@ -77,7 +77,7 @@ def test_init_output_message():
         try:
             result = runner.invoke(app, ["init"])
             assert result.exit_code == 0, f"Init command failed: {result.stdout}"
-            assert "Initialized Dakora project." in result.stdout, f"Wrong output message: {result.stdout}"
+            assert "Initialized PromptLightning project." in result.stdout, f"Wrong output message: {result.stdout}"
 
             print("✅ Init command outputs correct message")
 
@@ -106,7 +106,7 @@ def test_init_works_in_existing_directory():
             assert Path("some_dir").exists(), "Existing directory was removed"
 
             # Check that new files were created
-            assert Path("dakora.yaml").exists(), "Config file was not created"
+            assert Path("promptlightning.yaml").exists(), "Config file was not created"
             assert Path("prompts").exists(), "Prompts directory was not created"
             assert Path("prompts/summarizer.yaml").exists(), "Example template was not created"
 
@@ -117,7 +117,7 @@ def test_init_works_in_existing_directory():
 
 def main():
     """Run all init tests"""
-    print("🧪 Testing dakora init command...\n")
+    print("🧪 Testing promptlightning init command...\n")
 
     try:
         test_init_creates_proper_structure()

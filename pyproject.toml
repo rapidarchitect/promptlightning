@@ -1,5 +1,5 @@
 [project]
-name = "dakora"
+name = "promptlightning"
 version = "1.0.2"
 description = "A Python library for managing and rendering prompt templates with type-safe inputs, versioning, and optional logging"
 readme = "README.md"
@@ -17,6 +17,8 @@ dependencies = [
     "uvicorn>=0.24.0",
     "litellm>=1.0.0",
     "python-dotenv>=1.0.0",
+    "lmdb>=1.4.0",
+    "msgpack>=1.0.5",
 ]
 classifiers = [
     "Development Status :: 4 - Beta",
@@ -28,26 +30,26 @@ classifiers = [
 ]
 
 [project.scripts]
-dakora = "dakora.cli:app"
+promptlightning = "promptlightning.cli:app"
 
 [project.urls]
-Homepage = "https://github.com/bogdan-pistol/dakora"
-Repository = "https://github.com/bogdan-pistol/dakora.git"
-Issues = "https://github.com/bogdan-pistol/dakora/issues"
+Homepage = "https://github.com/bogdan-pistol/promptlightning"
+Repository = "https://github.com/bogdan-pistol/promptlightning.git"
+Issues = "https://github.com/bogdan-pistol/promptlightning/issues"
 
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
-packages = ["dakora"]
+packages = ["promptlightning"]
 
 [tool.hatch.build.targets.wheel.force-include]
 # Include playground directory (built by CI, or empty with .gitkeep)
 "playground" = "playground"
 
 [tool.hatch.build.targets.sdist]
-# Source dist includes dakora source and web/ source
+# Source dist includes promptlightning source and web/ source
 exclude = ["web/node_modules"]
 
 [tool.hatch.build.targets.sdist.force-include]

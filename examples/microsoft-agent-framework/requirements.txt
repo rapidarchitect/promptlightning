@@ -2,7 +2,7 @@
 # Dependencies for microsoft_agent_framework.py example
 
 # Core dependencies
-dakora>=0.1.0
+promptlightning>=0.1.0
 
 # Microsoft Agent Framework (2025 release - currently in beta)
 # Note: agent-framework is in beta, but agent-framework-azure is at 0.0.0

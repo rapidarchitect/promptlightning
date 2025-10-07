@@ -20,8 +20,8 @@ import sys
 import os
 
 from dotenv import load_dotenv
-from dakora.vault import Vault
-from dakora.exceptions import APIKeyError
+from promptlightning.vault import Vault
+from promptlightning.exceptions import APIKeyError
 
 load_dotenv()
 
@@ -68,11 +68,11 @@ def test_gpt5_nano_execution():
             "logging": {
                 "enabled": True,
                 "backend": "sqlite",
-                "db_path": str(Path(tmpdir) / "dakora.db")
+                "db_path": str(Path(tmpdir) / "promptlightning.db")
             }
         }
 
-        config_path = Path(tmpdir) / "dakora.yaml"
+        config_path = Path(tmpdir) / "promptlightning.yaml"
         config_path.write_text(yaml.safe_dump(config))
 
         vault = Vault(str(config_path))

@@ -1,6 +1,6 @@
-# Dakora Examples
+# PromptLightning Examples
 
-This directory contains practical examples showing how to use Dakora in real applications.
+This directory contains practical examples showing how to use PromptLightning in real applications.
 
 ## Examples Overview
 
@@ -17,7 +17,7 @@ This directory contains practical examples showing how to use Dakora in real app
 
 ### 🎯 What You'll Learn
 
-- Creating AI agents with Dakora-managed prompts
+- Creating AI agents with PromptLightning-managed prompts
 - Building multi-agent orchestration systems with specialized agents
 - Intelligent task routing based on user requests
 - Agent-to-agent collaboration workflows
@@ -68,13 +68,13 @@ The example includes:
    - Multi-agent workflow with agent collaboration
    - Interactive mode for testing
 3. **Auto-generated templates** - 9 sample templates created automatically
-4. **Production-ready patterns** - DakoraAgentManager class for clean architecture
+4. **Production-ready patterns** - PromptLightningAgentManager class for clean architecture
 5. **Setup automation** - Scripts for Windows and Linux/Mac with virtual environment support
 
 **Why combine these two?**
 
 - Microsoft Agent Framework = Powerful agent orchestration
-- Dakora = Type-safe, versioned prompt management
+- PromptLightning = Type-safe, versioned prompt management
 - Together = Robust, maintainable AI agent systems
 
 ### 📖 Documentation
@@ -85,7 +85,7 @@ See [`microsoft-agent-framework/README.md`](microsoft-agent-framework/README.md)
 
 ## FastAPI + OpenAI Example
 
-A complete FastAPI application demonstrating Dakora integration with OpenAI's latest Responses API and GPT-5.
+A complete FastAPI application demonstrating PromptLightning integration with OpenAI's latest Responses API and GPT-5.
 
 ### Features
 
@@ -94,7 +94,7 @@ A complete FastAPI application demonstrating Dakora integration with OpenAI's la
 - 🧠 **GPT-5 with reasoning** capabilities and effort controls
 - 📝 **Multiple template examples** (summarizer, analyzer, chat assistant)
 - 🔍 **Template discovery** via REST API
-- 📊 **Automatic logging** with Dakora's built-in system
+- 📊 **Automatic logging** with PromptLightning's built-in system
 - 🏥 **Health checks** and error handling
 
 ### Quick Start
@@ -109,14 +109,14 @@ A complete FastAPI application demonstrating Dakora integration with OpenAI's la
    export OPENAI_API_KEY="your-api-key-here"
    ```
 
-3. **Initialize Dakora:**
+3. **Initialize PromptLightning:**
    ```bash
    # Copy example templates
    mkdir -p prompts
    cp templates/* prompts/
 
    # Or use the CLI to create a fresh project
-   dakora init
+   promptlightning init
    ```
 
 4. **Run the API:**
@@ -185,11 +185,11 @@ The example includes these template files:
 
 - **`analyzer.yaml`** - Content analysis with different types (sentiment, technical, business)
 - **`chat_assistant.yaml`** - General purpose chat assistant
-- **`summarizer.yaml`** - Text summarization (created by `dakora init`)
+- **`summarizer.yaml`** - Text summarization (created by `promptlightning init`)
 
 ### Configuration
 
-The example uses `dakora.yaml` for configuration:
+The example uses `promptlightning.yaml` for configuration:
 
 ```yaml
 registry: local
@@ -197,7 +197,7 @@ prompt_dir: ./prompts
 logging:
   enabled: true
   backend: sqlite
-  db_path: ./dakora.db
+  db_path: ./promptlightning.db
 ```
 
 ### Production Considerations

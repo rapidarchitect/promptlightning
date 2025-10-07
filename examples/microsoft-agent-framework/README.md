@@ -1,8 +1,8 @@
-# Dakora: Prompt Management for AI Agents (Microsoft Agent Framework Integration)
+# PromptLightning: Prompt Management for AI Agents (Microsoft Agent Framework Integration)
 
-This example demonstrates how to use **Dakora** - a powerful prompt template management system - to build production-ready AI agents with the Microsoft Agent Framework.
+This example demonstrates how to use **PromptLightning** - a powerful prompt template management system - to build production-ready AI agents with the Microsoft Agent Framework.
 
-**Why Dakora?** Traditional AI applications hardcode prompts directly in source code, making them difficult to version, test, and iterate. Dakora solves this by treating prompts as first-class citizens with:
+**Why PromptLightning?** Traditional AI applications hardcode prompts directly in source code, making them difficult to version, test, and iterate. PromptLightning solves this by treating prompts as first-class citizens with:
 
 - 🎯 **Type-safe templates** with input validation
 - 📦 **Version control** for A/B testing and safe rollback
@@ -31,13 +31,13 @@ python simple_agent_example.py
 # 5. Try multi-agent example
 python multi_agent_example.py
 
-# 6. 🎨 Explore templates in Dakora Playground
-dakora playground
+# 6. 🎨 Explore templates in PromptLightning Playground
+promptlightning playground
 ```
 
-## What is Dakora?
+## What is PromptLightning?
 
-**Dakora** is a prompt template management system that brings software engineering best practices to AI development. Instead of scattering prompts throughout your codebase, Dakora centralizes them in version-controlled YAML files with:
+**PromptLightning** is a prompt template management system that brings software engineering best practices to AI development. Instead of scattering prompts throughout your codebase, PromptLightning centralizes them in version-controlled YAML files with:
 
 - **Type Safety**: Define required inputs and their types - catch errors before runtime
 - **Jinja2 Templating**: Use variables, conditionals, loops for dynamic prompts
@@ -45,12 +45,12 @@ dakora playground
 - **Visual Playground**: Interactive web UI to test and refine prompts
 - **Hot Reload**: Update prompts without redeploying your application
 
-### Dakora Playground
+### PromptLightning Playground
 
 The playground is a powerful web-based UI for working with your templates:
 
 ```bash
-dakora playground
+promptlightning playground
 ```
 
 This opens an interactive interface where you can:
@@ -61,7 +61,7 @@ This opens an interactive interface where you can:
 - 📊 **Compare** different versions
 - 💾 **Create** new templates visually
 
-**Try it now!** After running the setup script, run `dakora playground` to explore the agent templates created by the examples.
+**Try it now!** After running the setup script, run `promptlightning playground` to explore the agent templates created by the examples.
 
 ## Overview
 
@@ -73,7 +73,7 @@ The Microsoft Agent Framework provides a unified way to build AI agents with sup
 - Streaming responses
 - Multi-agent workflows
 
-By combining it with Dakora, you get:
+By combining it with PromptLightning, you get:
 
 - **Type-safe prompt templates** with validation
 - **Versioned prompts** for A/B testing and rollback
@@ -83,13 +83,13 @@ By combining it with Dakora, you get:
 
 ## Files in This Example
 
-- **`simple_agent_example.py`** - Basic getting-started example showing core Dakora + Agent Framework integration
+- **`simple_agent_example.py`** - Basic getting-started example showing core PromptLightning + Agent Framework integration
 - **`multi_agent_example.py`** - Advanced multi-agent orchestrator with intelligent routing and specialized agents
 - **`load_env.py`** - Utility for loading environment variables from `.env` file
 - **`setup.ps1`** / **`setup.sh`** - Automated setup scripts for Windows/Linux/Mac
 - **`requirements.txt`** - Python dependencies
-- **`dakora.yaml`** - Dakora configuration file (created by `dakora init`)
-- **`prompts/`** - Directory containing all Dakora templates (auto-created by scripts)
+- **`promptlightning.yaml`** - PromptLightning configuration file (created by `promptlightning init`)
+- **`prompts/`** - Directory containing all PromptLightning templates (auto-created by scripts)
 - **`.env.example`** - Example environment configuration file
 
 ## Installation
@@ -135,7 +135,7 @@ The setup script will:
 - ✅ Create a virtual environment (`venv/`)
 - ✅ Install all dependencies in isolation
 - ✅ Verify Azure CLI
-- ✅ Initialize Dakora
+- ✅ Initialize PromptLightning
 
 **Why virtual environment?**
 
@@ -257,32 +257,32 @@ AZURE_AI_MODEL_DEPLOYMENT_NAME=gpt-4
 az login
 ```
 
-## Setup Dakora
+## Setup PromptLightning
 
-The setup scripts automatically run `dakora init` which creates:
+The setup scripts automatically run `promptlightning init` which creates:
 
-- **`dakora.yaml`** - Configuration file pointing to your prompts directory
+- **`promptlightning.yaml`** - Configuration file pointing to your prompts directory
 - **`prompts/`** - Directory for storing template files
 - **`prompts/summarizer.yaml`** - Example template to get you started
 
-You can also initialize Dakora manually:
+You can also initialize PromptLightning manually:
 
 ```bash
 cd examples/microsoft-agent-framework
-dakora init
+promptlightning init
 ```
 
 The example scripts will auto-create additional templates on first run. After templates are created, you can:
 
 ```bash
 # List all templates
-dakora list
+promptlightning list
 
 # View the playground
-dakora playground
+promptlightning playground
 
 # Watch for template changes (hot-reload)
-dakora watch
+promptlightning watch
 ```
 
 ## Running the Examples
@@ -298,14 +298,14 @@ python simple_agent_example.py
 
 **What it demonstrates:**
 
-- Loading and rendering Dakora templates
+- Loading and rendering PromptLightning templates
 - Creating an agent with template-based instructions
 - Running a simple query
 - Auto-creation of templates if they don't exist
 
 **Key concepts:**
 
-- Dakora Vault initialization
+- PromptLightning Vault initialization
 - Template rendering with dynamic inputs
 - Agent creation with Azure OpenAI
 - Authentication (Azure CLI or API Key)
@@ -398,9 +398,9 @@ The multi-agent system uses 8 templates total:
 
 All templates are automatically created when you run `multi_agent_example.py` for the first time.
 
-## Working with Templates in Dakora Playground
+## Working with Templates in PromptLightning Playground
 
-Once you've run the examples and templates are created, the Dakora Playground is the best way to explore and modify them:
+Once you've run the examples and templates are created, the PromptLightning Playground is the best way to explore and modify them:
 
 ### Starting the Playground
 
@@ -411,7 +411,7 @@ Once you've run the examples and templates are created, the Dakora Playground is
 source venv/bin/activate     # Linux/Mac
 
 # Launch the playground
-dakora playground
+promptlightning playground
 ```
 
 This starts a local web server (typically at `http://localhost:8000`) and opens your browser.
@@ -449,7 +449,7 @@ This starts a local web server (typically at `http://localhost:8000`) and opens 
 
 Let's say you want to make the Coder Agent more focused on Python:
 
-1. Run `dakora playground`
+1. Run `promptlightning playground`
 2. Click on **agent_coder** in the template list
 3. Edit the template to add:
 
@@ -491,10 +491,10 @@ For rapid iteration:
 
 ```bash
 # Terminal 1: Watch for changes
-dakora watch
+promptlightning watch
 
 # Terminal 2: Run playground
-dakora playground
+promptlightning playground
 
 # Terminal 3: Run your agent
 python multi_agent_example.py
@@ -509,7 +509,7 @@ Now when you edit templates in the playground, your agents can pick up changes i
 The simple example demonstrates a straightforward integration pattern:
 
 ```python
-# 1. Initialize Dakora Vault
+# 1. Initialize PromptLightning Vault
 vault = Vault(prompt_dir="prompts")
 
 # 2. Load and render template
@@ -552,7 +552,7 @@ class MultiAgentOrchestrator:
         self.router = None  # Router agent
     
     async def initialize_agents(self):
-        """Create all agents from Dakora templates"""
+        """Create all agents from PromptLightning templates"""
         # Create specialized agents (coder, researcher, writer, summarizer)
         for agent_type, config in AGENT_CONFIG.items():
             template = self.vault.get(config["template"].value)
@@ -605,7 +605,7 @@ Perfect for:
 
 ### 2. Multi-Agent Systems (multi_agent_example.py)
 
-Use different Dakora templates for specialized agents:
+Use different PromptLightning templates for specialized agents:
 
 - **Intelligent routing**: Router agent selects the right specialist
 - **Domain experts**: Coder, Researcher, Writer, Summarizer agents
@@ -630,11 +630,11 @@ Both patterns support:
 - **GitHub Repository**: <https://github.com/microsoft/agent-framework>
 - **Python Samples**: <https://github.com/microsoft/agent-framework/tree/main/python/samples>
 
-## Dakora Resources
+## PromptLightning Resources
 
-- **GitHub Repository**: <https://github.com/bogdan-pistol/dakora>
-- **Documentation**: <https://github.com/bogdan-pistol/dakora/blob/main/README.md>
-- **Live Playground**: <https://playground.dakora.io/>
+- **GitHub Repository**: <https://github.com/bogdan-pistol/promptlightning>
+- **Documentation**: <https://github.com/bogdan-pistol/promptlightning/blob/main/README.md>
+- **Live Playground**: <https://playground.promptlightning.io/>
 
 ## Troubleshooting
 
@@ -673,12 +673,12 @@ If you get import errors:
 
 ```bash
 # Reinstall dependencies
-pip install -U agent-framework agent-framework-azure azure-identity dakora
+pip install -U agent-framework agent-framework-azure azure-identity promptlightning
 ```
 
 ## Next Steps
 
-1. **Start with the playground**: Run `dakora playground` to explore templates visually
+1. **Start with the playground**: Run `promptlightning playground` to explore templates visually
 2. **Run the simple example**: `python simple_agent_example.py` to understand the basics
 3. **Try multi-agent routing**: `python multi_agent_example.py` to see advanced patterns
 4. **Customize templates**: Edit agent personalities in the playground and test immediately
@@ -686,7 +686,7 @@ pip install -U agent-framework agent-framework-azure azure-identity dakora
 6. **Experiment with versions**: Try A/B testing different prompt versions
 7. **Join the community**: Share your experience on Discord or contribute examples
 
-## Why Use Dakora for AI Agents?
+## Why Use PromptLightning for AI Agents?
 
 ### The Problem with Hardcoded Prompts
 
@@ -710,9 +710,9 @@ Problems:
 - 🚫 No type safety for inputs
 - 🚫 Hard to share across team
 
-### The Dakora Approach
+### The PromptLightning Approach
 
-With Dakora:
+With PromptLightning:
 
 ```python
 # ✅ Prompts managed centrally
@@ -760,21 +760,21 @@ Benefits:
 - Version history for regulations
 - Rollback to compliant versions
 
-## Learn More About Dakora
+## Learn More About PromptLightning
 
-- **Main Repository**: <https://github.com/bogdan-pistol/dakora>
-- **Documentation**: <https://github.com/bogdan-pistol/dakora/blob/main/README.md>
-- **Live Playground Demo**: <https://playground.dakora.io/>
+- **Main Repository**: <https://github.com/bogdan-pistol/promptlightning>
+- **Documentation**: <https://github.com/bogdan-pistol/promptlightning/blob/main/README.md>
+- **Live Playground Demo**: <https://playground.promptlightning.io/>
 - **Discord Community**: <https://discord.gg/QSRRcFjzE8>
 
 ## Contributing
 
 Have ideas for improving this example? Contributions are welcome!
 
-- Report issues: <https://github.com/bogdan-pistol/dakora/issues>
-- Submit PRs: <https://github.com/bogdan-pistol/dakora/pulls>
+- Report issues: <https://github.com/bogdan-pistol/promptlightning/issues>
+- Submit PRs: <https://github.com/bogdan-pistol/promptlightning/pulls>
 - Join Discord: <https://discord.gg/QSRRcFjzE8>
 
 ## License
 
-This example is licensed under Apache-2.0, same as the Dakora project.
+This example is licensed under Apache-2.0, same as the PromptLightning project.

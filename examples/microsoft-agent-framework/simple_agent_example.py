@@ -29,7 +29,7 @@ from pathlib import Path
 
 from agent_framework.azure import AzureOpenAIChatClient
 from azure.identity import AzureCliCredential
-from dakora import Vault
+from promptlightning import Vault
 
 # Get script directory for relative paths
 SCRIPT_DIR = Path(__file__).parent
