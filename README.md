@@ -46,6 +46,7 @@ promptlightning run summarizer --model gpt-4 --input-text "Article..."
 - 🌐 **[Live Web Playground](https://playground.promptlightning.io/)** - Try online without installing anything!
 - 🎯 **Local Playground** - Same modern React UI included with pip install
 - 🚀 **LLM Execution** - Run templates against 100+ LLM providers (OpenAI, Anthropic, Google, etc.)
+- ⚡ **Lightning-Fast Storage** - LMDB-powered registry with 450-4,380x performance improvement
 - 🎨 **Type-safe prompt templates** with validation and coercion
 - 📁 **File-based template management** with YAML definitions
 - 🔄 **Hot-reload support** for development
@@ -55,6 +56,42 @@ promptlightning run summarizer --model gpt-4 --input-text "Article..."
 - 🖥️ **CLI interface** for template management and execution
 - 🧵 **Thread-safe caching** for production use
 - 💰 **Cost & performance tracking** - Monitor tokens, latency, and costs
+
+## Performance
+
+PromptLightning uses LMDB (Lightning Memory-Mapped Database) for ultra-fast template storage:
+
+- **450-4,380x faster** than YAML file scanning
+- **O(1) constant-time lookups** via memory mapping
+- **Zero-copy reads** for maximum efficiency
+- **Thread-safe** concurrent access
+- **Production-ready** ACID-compliant storage
+
+### Performance Comparison
+
+| Operation | YAML Registry | LMDB Registry | Speedup |
+|-----------|--------------|---------------|---------|
+| Load 10 templates (50 lookups) | 86ms | 0.2ms | 451x |
+| Load 50 templates (200 lookups) | 1,595ms | 0.7ms | 2,275x |
+| Load 100 templates (500 lookups) | 7,817ms | 1.8ms | 4,380x |
+
+See [docs/PERFORMANCE.md](docs/PERFORMANCE.md) for detailed benchmarks.
+
+## Migration from YAML
+
+Upgrading from YAML-based storage? Migrate with one command:
+
+```bash
+promptlightning migrate --prompt-dir ./prompts --db-path ./templates.lmdb
+```
+
+The migration tool:
+- Automatically converts all YAML templates to LMDB
+- Verifies data integrity after migration
+- Preserves all template metadata and versioning
+- Provides detailed migration report
+
+See [MIGRATION.md](MIGRATION.md) for the complete migration guide.
 
 ## Installation
 
@@ -323,13 +360,30 @@ metadata:                       # Optional: Custom metadata
 `promptlightning.yaml` structure:
 
 ```yaml
-registry: local                 # Registry type (currently only 'local')
-prompt_dir: ./prompts          # Path to templates directory
-logging:                       # Optional: Execution logging
+# LMDB registry (recommended for production)
+registry: lmdb
+db_path: ./templates.lmdb
+logging:
   enabled: true
   backend: sqlite
   db_path: ./promptlightning.db
+
+# Legacy YAML registry (still supported)
+# registry: local
+# prompt_dir: ./prompts
 ```
+
+**LMDB Registry** (Recommended):
+- 450-4,380x faster than YAML file scanning
+- O(1) constant-time lookups
+- Production-ready ACID storage
+- Ideal for applications with many templates
+
+**Local Registry** (Development):
+- Human-readable YAML files
+- Easy to edit and version control
+- Good for small template collections
+- Simple development workflow
 
 ## Advanced Usage
 

@@ -66,4 +66,5 @@ dev-dependencies = [
     "pytest>=7.4.0",
     "pytest-asyncio>=0.21.0",
     "tomli-w>=1.0.0",
+    "pytest-cov>=7.0.0",
 ]

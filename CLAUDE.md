@@ -8,10 +8,12 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 PromptLightning is a Python library for managing and executing LLM prompt templates with type-safe inputs, versioning, and optional logging. The architecture consists of:
 
 - **Vault**: Main public API (`promptlightning/vault.py`) - loads templates, handles caching with thread-safe RLock, and provides TemplateHandle objects
-- **Registry**: Template discovery system (`promptlightning/registry/`) - abstract base with LocalRegistry implementation that scans YAML files in prompt directories
+- **Registry**: Template discovery system (`promptlightning/registry/`) - abstract base with LMDBRegistry (production) and LocalRegistry (development) implementations
+- **LMDB Registry**: Lightning Memory-Mapped Database storage (`promptlightning/registry/lmdb_registry.py`) - 450-4,380x faster than YAML with O(1) lookups, MessagePack serialization, 3-database schema (templates, metadata, version_index)
+- **Migration**: YAML to LMDB conversion utility (`promptlightning/registry/migrate.py`) - automated migration with verification
 - **Model**: Pydantic-based template specifications (`promptlightning/model.py`) - defines TemplateSpec with input validation and type coercion
 - **Renderer**: Jinja2-based template rendering (`promptlightning/renderer.py`) - includes custom filters like `yaml` and `default`
-- **CLI**: Typer-based command interface (`promptlightning/cli.py`) - provides init, list, get, bump, watch, run, and playground commands
+- **CLI**: Typer-based command interface (`promptlightning/cli.py`) - provides init, list, get, bump, watch, run, migrate, and playground commands
 - **Playground**: FastAPI-based web server (`promptlightning/playground.py`) - interactive React-based web interface for template development and testing, with demo mode support
 - **LLM Client**: LiteLLM integration (`promptlightning/llm/client.py`) - executes templates against 100+ LLM providers with cost tracking
 - **Logging**: Optional SQLite-based execution logging (`promptlightning/logging.py`) - tracks template executions with inputs, outputs, and metadata
@@ -46,6 +48,9 @@ uv run python -m promptlightning.cli list
 
 # Get template content
 uv run python -m promptlightning.cli get summarizer
+
+# Migrate from YAML to LMDB
+uv run python -m promptlightning.cli migrate --prompt-dir ./prompts --db-path ./templates.lmdb
 
 # Bump template version
 uv run python -m promptlightning.cli bump summarizer --minor
@@ -121,7 +126,15 @@ uv run mypy promptlightning
 
 **Library Usage (Development):**
 ```bash
-# Test vault functionality
+# Test vault with LMDB
+uv run python -c "
+from promptlightning.vault import Vault
+v = Vault(db_path='./templates.lmdb')
+tmpl = v.get('summarizer')
+print(tmpl.render(input_text='test'))
+"
+
+# Test vault with YAML (legacy)
 uv run python -c "
 from promptlightning.vault import Vault
 v = Vault(prompt_dir='./prompts')
@@ -141,12 +154,16 @@ print(f'Cost: \${result.cost_usd:.4f}')
 
 ## Key Architecture Notes
 
+- **LMDB storage**: Lightning Memory-Mapped Database for 450-4,380x performance improvement over YAML
+- **LMDBRegistry architecture**: 3-database schema (templates, metadata, version_index) with MessagePack serialization
+- **Performance optimizations**: Memory-mapped I/O, zero-copy reads, O(1) lookups, thread-safe MVCC
+- **Migration utility**: Built-in YAML to LMDB migration with automated verification and integrity checking
 - **Thread-safe caching**: Vault class uses RLock for concurrent access to template cache
-- **Registry pattern**: Abstract base allows future extension beyond local filesystem (e.g., remote registries)
+- **Registry pattern**: Abstract base allows LMDBRegistry (production) and LocalRegistry (development) implementations
 - **TemplateHandle separation**: Template metadata separated from rendering concerns for cleaner API
 - **Input validation**: Happens at render/execute time via Pydantic with custom type coercion logic
 - **Jinja2 configuration**: StrictUndefined mode to catch template errors early
-- **File watching**: Separate Watcher class for hot-reload via `invalidate_cache()` callback
+- **File watching**: Separate Watcher class for hot-reload via `invalidate_cache()` callback (LocalRegistry only)
 - **Playground architecture**: FastAPI backend with CORS, static file serving, and automatic UI build from `web/` source
 - **UI build process**: Vite + React + TypeScript in `web/` directory, builds to `playground/` directory
 - **Demo mode**: Serves example templates from embedded YAML, read-only interface
@@ -178,12 +195,17 @@ metadata:                       # Optional: Custom metadata
 
 `promptlightning.yaml` structure:
 ```yaml
-registry: local                 # Registry type (currently only 'local')
-prompt_dir: ./prompts          # Path to templates directory
-logging:                       # Optional: Execution logging
+# LMDB registry (recommended for production)
+registry: lmdb
+db_path: ./templates.lmdb
+logging:
   enabled: true
   backend: sqlite
   db_path: ./promptlightning.db
+
+# Legacy YAML registry (development)
+# registry: local
+# prompt_dir: ./prompts
 ```
 
 ## Code Style Guidelines
